@@ -13,4 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-src/main/java/com/gymxy/gymxyone/Secrets.kt
+app/src/main/java/com/gymxy/gymxyone/Secrets.kt
