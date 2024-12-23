@@ -13,4 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+app/src/main/java/TODO.txt
+app/google-services.json
 app/src/main/java/com/gymxy/gymxyone/Secrets.kt
