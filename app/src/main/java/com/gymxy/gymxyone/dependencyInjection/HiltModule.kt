@@ -9,24 +9,26 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.gymxy.gymxyone.Secrets.WEB_CLIENT_ID
 import com.gymxy.gymxyone.data.offline.SharedPreferenceDataHandler
+import com.gymxy.gymxyone.data.online.FirestoreDataHandler
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import com.gymxy.gymxyone.domain.repositoryInterface.FirestoreDataHandlingInterface as FirestoreDataHandlingInterface
 
 @Module
 @InstallIn(SingletonComponent::class)
 object HiltModule {
 
     @Provides
-    fun provideContext () : ApplicationContext {
+    fun provideContext(): ApplicationContext {
         return ApplicationContext()
     }
 
     @Provides
-    fun providesGoogleIdOption (): GetGoogleIdOption {
+    fun providesGoogleIdOption(): GetGoogleIdOption {
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(true)
             .setServerClientId(WEB_CLIENT_ID)
@@ -36,14 +38,15 @@ object HiltModule {
     }
 
     @Provides
-    fun providesSignInWithGoogleOption (): GetSignInWithGoogleOption {
-        val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(serverClientId = WEB_CLIENT_ID).build()
+    fun providesSignInWithGoogleOption(): GetSignInWithGoogleOption {
+        val signInWithGoogleOption =
+            GetSignInWithGoogleOption.Builder(serverClientId = WEB_CLIENT_ID).build()
         return signInWithGoogleOption
     }
 
     @Provides
     @Singleton
-    fun provideFirebase() : FirebaseFirestore {
+    fun provideFirebase(): FirebaseFirestore {
         return Firebase.firestore
     }
 
@@ -51,15 +54,27 @@ object HiltModule {
     @Singleton
     fun provideSharedPreferences(
         @ApplicationContext context: Context
-    ) : SharedPreferences {
-        return context.getSharedPreferences("User",Context.MODE_PRIVATE)
+    ): SharedPreferences {
+        return context.getSharedPreferences("User", Context.MODE_PRIVATE)
     }
+
     @Provides
     @Singleton
-    fun provideSharedPrefenceDataHandler (
+    fun provideSharedPrefenceDataHandler(
         sharedPreferences: SharedPreferences
     ): SharedPreferenceDataHandler {
         return SharedPreferenceDataHandler(sharedPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFireBaseDataHandler(
+        db: FirebaseFirestore,
+        sharedPreferenceDataHandler: SharedPreferenceDataHandler
+    ): FirestoreDataHandlingInterface {
+        return FirestoreDataHandler(
+            db, sharedPreferenceDataHandler
+        )
     }
 
 }

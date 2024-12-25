@@ -14,13 +14,12 @@ interface FirestoreDataHandlingInterface {
     suspend fun addWeight (weightDetails: Weight) : Result
     suspend fun addHeight (heightDetails: Height) : Result
     suspend fun addSplit (splitDetails: SplitDetails) : Result
-    suspend fun getNoOfCustomSplit () : Int
+    suspend fun getNoOfCustomSplit () : Int?
     suspend fun setNoOfCustomSplit (valueToSet : Int) : Result
-    suspend fun getWeightDetails () : List<Weight>
-    suspend fun getHeightDetails () : List<Height>
-    suspend fun getSplitDetails () : List<SplitDetails>
-    suspend fun getPerformedDays () : List<PerformedDays>
-    suspend fun getPerformedDaysExercise (): List<EachExercisePerformedDetails>
+    suspend fun getWeightDetails () : List<Weight>?
+    suspend fun getHeightDetails () : List<Height>?
+    suspend fun getSplitDetails () : List<SplitDetails>?
+    suspend fun getPerformedDays () : List<PerformedDays>?
 
 
 }
