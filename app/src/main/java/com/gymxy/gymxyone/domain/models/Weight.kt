@@ -4,6 +4,6 @@ data class Weight(
     /**
      * weight in grams , date in epoch in milliseconds
      */
-    var weight : Int = 0,
+    var weight : Long = 0,
     var dateInEpoch : Long = System.currentTimeMillis()
 )

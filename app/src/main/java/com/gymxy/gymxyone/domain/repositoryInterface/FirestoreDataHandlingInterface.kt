@@ -20,6 +20,7 @@ interface FirestoreDataHandlingInterface {
     suspend fun getHeightDetails () : List<Height>?
     suspend fun getSplitDetails () : List<SplitDetails>?
     suspend fun getPerformedDays () : List<PerformedDays>?
+    suspend fun getSplitById (splitId : String) : SplitDetails?
 
 
 }

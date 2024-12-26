@@ -8,17 +8,36 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.gymxy.gymxyone.Secrets.WEB_CLIENT_ID
+import com.gymxy.gymxyone.data.offline.SettingDataHandler
+import com.gymxy.gymxyone.data.offline.SharedPreferenceCollectionName
 import com.gymxy.gymxyone.data.offline.SharedPreferenceDataHandler
 import com.gymxy.gymxyone.data.online.FirestoreDataHandler
+import com.gymxy.gymxyone.domain.repositoryInterface.SettingScreenDataInterface
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.DeletePerformedDay
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetHeightDetails
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetPerformedDays
+import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetSplitById
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetSplitDetails
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetWeightDetails
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveHeight
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SavePerformedDay
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveSplit
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveWeight
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetBMI
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetHeightUnit
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetNotificationPermission
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetNotificationTime
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetRaingPermission
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetTrainingSplit
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetWeightUnit
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveHeightSetting
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveHeightUnit
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveNotificationPermission
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveNotificationTime
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveRatingPermission
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveWeightSetting
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveWeightUnit
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.SetTrainingSplit
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -64,7 +83,7 @@ object HiltModule {
     fun provideSharedPreferences(
         @ApplicationContext context: Context
     ): SharedPreferences {
-        return context.getSharedPreferences("User", Context.MODE_PRIVATE)
+        return context.getSharedPreferences(SharedPreferenceCollectionName.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE)
     }
 
     @Provides
@@ -149,5 +168,140 @@ object HiltModule {
     ) : DeletePerformedDay {
         return DeletePerformedDay(firestoreDataHandlingInterface)
     }
+    @Provides
+    @Singleton
+    fun provideGetSplitById(
+        firestoreDataHandlingInterface: FirestoreDataHandlingInterface
+    ): GetSplitById{
+        return GetSplitById(firestoreDataHandlingInterface)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSettingDataHandler(
+        sharedPreferenceDataHandler: SharedPreferenceDataHandler,
+        saveHeight: SaveHeight,
+        saveWeight: SaveWeight,
+        getSplitById: GetSplitById,
+        getWeightDetails: GetWeightDetails,
+        getHeightDetails: GetHeightDetails
+    ): SettingScreenDataInterface{
+        return SettingDataHandler(
+            sharedPreferenceDataHandler,
+            saveHeight,
+            saveWeight,
+            getSplitById,
+            getWeightDetails,
+            getHeightDetails
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetBMI(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetBMI {
+        return GetBMI(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideHeightUnit(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetHeightUnit {
+        return GetHeightUnit(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideGetNotficationPermission(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetNotificationPermission {
+        return GetNotificationPermission(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideGetNotificationTime(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetNotificationTime {
+        return GetNotificationTime(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideGetRatingPermission(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetRaingPermission {
+        return GetRaingPermission(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideGetTrainingSplit(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetTrainingSplit {
+        return GetTrainingSplit(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideGetWeightUnit(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetWeightUnit {
+        return GetWeightUnit(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideSaveHeightSetting(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): SaveHeightSetting {
+        return SaveHeightSetting(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideSaveHeightUnit(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): SaveHeightUnit {
+        return SaveHeightUnit(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideSaveNotificationPermission(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): SaveNotificationPermission {
+        return SaveNotificationPermission(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideSaveNotificationTime(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): SaveNotificationTime {
+        return SaveNotificationTime(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideSaveRatingPermission(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): SaveRatingPermission {
+        return SaveRatingPermission(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideSaveWeightSetting(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): SaveWeightSetting {
+        return SaveWeightSetting(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideSaveWeightUnit(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): SaveWeightUnit {
+        return SaveWeightUnit(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideSetTrainingSplit(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): SetTrainingSplit {
+        return SetTrainingSplit(settingScreenDataInterface)
+    }
+
+
 
 }

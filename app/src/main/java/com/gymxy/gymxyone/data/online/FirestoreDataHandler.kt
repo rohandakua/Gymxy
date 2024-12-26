@@ -328,5 +328,29 @@ class FirestoreDataHandler @Inject constructor(
         }
     }
 
+    override suspend fun getSplitById(splitId: String): SplitDetails? {
+        return withContext(Dispatchers.IO){
+            try{
+                val uid = sharedPreferenceDataHandler.getUid()
+                if (uid == null) {
+                    Log.e(TAG, "User ID is null")
+                    throw Exception("User ID is null")
+                }
+                val docRef = db.collection(RepositoryCollectionsName.FIREBASE_COLLECTION_BASE_ADDRESS)
+                    .document(uid).collection(RepositoryCollectionsName.FIREBASE_COLLECTION_SPLIT_DETAILS)
+                    .document(splitId)
+                val documents = docRef.get().await()
+                documents.toObject<SplitDetails>()
+            }catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, e.message.toString())
+                throw e
+            }
+            null
+        }
+    }
+
+
 
 }
