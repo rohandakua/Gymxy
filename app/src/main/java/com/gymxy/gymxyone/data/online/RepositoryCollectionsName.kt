@@ -25,10 +25,4 @@ object RepositoryCollectionsName {
      * all the data related to split is store in the splitDetails collection in firestore
      */
     const val FIREBASE_COLLECTION_SPLIT_DETAILS = "splitDetails"
-
-    /**
-     * all the exercise details of a particular performed day is stored in performedExerciseDetails collection
-     * It is a subCollection of exercise in a particular performed day
-     */
-    const val FIREBASE_COLLECTION_EXERCISE_DETAILS = "performedExerciseDetails"
 }
