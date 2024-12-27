@@ -91,6 +91,10 @@ class SharedPreferenceDataHandler @Inject constructor(
         )
     }
 
+    /**
+     * @fun saveNotificationTime
+     * this should store time for a day in milliseconds
+     */
     fun saveNotificationTime(time: Long) {
         sharedPreferences.edit().putLong(
             SharedPreferenceCollectionName.SHARED_PREFERENCE_TIME_TO_GET_NOTIFICATIONS,

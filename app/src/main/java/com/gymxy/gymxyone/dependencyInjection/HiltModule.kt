@@ -1,5 +1,7 @@
 package com.gymxy.gymxyone.dependencyInjection
 
+import android.app.AlarmManager
+import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -12,7 +14,12 @@ import com.gymxy.gymxyone.data.offline.SettingDataHandler
 import com.gymxy.gymxyone.data.offline.SharedPreferenceCollectionName
 import com.gymxy.gymxyone.data.offline.SharedPreferenceDataHandler
 import com.gymxy.gymxyone.data.online.FirestoreDataHandler
+import com.gymxy.gymxyone.domain.helperFunctions.SortingHelper
+import com.gymxy.gymxyone.domain.repositoryInterface.AlarmSchedulerInterface
 import com.gymxy.gymxyone.domain.repositoryInterface.SettingScreenDataInterface
+import com.gymxy.gymxyone.domain.repositoryInterface.StopwatchRepository
+import com.gymxy.gymxyone.domain.useCases.alarmUsecases.CancelAlarm
+import com.gymxy.gymxyone.domain.useCases.alarmUsecases.ScheduleAlarm
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.DeletePerformedDay
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetHeightDetails
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetPerformedDays
@@ -38,6 +45,13 @@ import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveRatingPermission
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveWeightSetting
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveWeightUnit
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SetTrainingSplit
+import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.GetFormattedTime
+import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.PauseStopwatch
+import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.ResetStopwatch
+import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.StartStopwatch
+import com.gymxy.gymxyone.systemPackages.AlarmSchedulerInterfaceImplementation
+import com.gymxy.gymxyone.systemPackages.MediaPlayerManager
+import com.gymxy.gymxyone.systemPackages.StopwatchRepositoryImplementation
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -300,6 +314,89 @@ object HiltModule {
         settingScreenDataInterface: SettingScreenDataInterface
     ): SetTrainingSplit {
         return SetTrainingSplit(settingScreenDataInterface)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMediaPlayerManager(
+        @ApplicationContext context:Context
+    ): MediaPlayerManager {
+        return MediaPlayerManager(context)
+    }
+
+    @Provides
+    fun providesNotificationManager(
+        @ApplicationContext context: Context
+    ): NotificationManager{
+        return try {
+            val notificationManager: NotificationManager =
+                context.getSystemService(NotificationManager::class.java) as NotificationManager
+            notificationManager
+        }catch (e : Exception){
+            throw RuntimeException("Error in creating notification manager")
+        }
+    }
+    @Provides
+    fun providesAlarmSchedulerInterface(
+        @ApplicationContext context: Context,
+        alarmManager: AlarmManager,
+    ): AlarmSchedulerInterface {
+        return AlarmSchedulerInterfaceImplementation(context, alarmManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlarmManager(@ApplicationContext context : Context):AlarmManager{
+        return context.getSystemService(AlarmManager::class.java)
+
+    }
+    @Provides
+    fun provideCancelAlarm (
+        alarmSchedulerInterface: AlarmSchedulerInterface,
+        getNotificationTime: GetNotificationTime
+    ): CancelAlarm {
+        return CancelAlarm(alarmSchedulerInterface,getNotificationTime)
+    }
+    @Provides
+    fun provideScheduleAlarm (
+        alarmSchedulerInterface: AlarmSchedulerInterface,
+        getNotificationTime: GetNotificationTime
+    ): ScheduleAlarm {
+        return ScheduleAlarm(alarmSchedulerInterface,getNotificationTime)
+    }
+
+    @Provides
+    @Singleton
+    fun providesStopwatchRepository (): StopwatchRepository {
+        return StopwatchRepositoryImplementation()
+
+    }
+    @Provides
+    fun providesGetFormattedTimeUsecase(
+        stopwatchRepository: StopwatchRepository
+    ): GetFormattedTime {
+        return GetFormattedTime(stopwatchRepository)
+    }
+    @Provides
+    fun providesPauseStopwatch(
+        stopwatchRepository: StopwatchRepository
+    ):PauseStopwatch{
+        return PauseStopwatch(stopwatchRepository)
+    }
+    @Provides
+    fun providesResetStopwatch(stopwatchRepository: StopwatchRepository):ResetStopwatch{
+        return ResetStopwatch(stopwatchRepository)
+    }
+    @Provides
+    fun providesStartStopwatch(stopwatchRepository: StopwatchRepository):StartStopwatch{
+        return StartStopwatch(stopwatchRepository)
+    }
+    @Provides
+    @Singleton
+    fun provideSortingHelper(
+        getTrainingSplit: GetTrainingSplit
+    ): SortingHelper {
+        return SortingHelper(getTrainingSplit)
     }
 
 
