@@ -20,6 +20,9 @@ interface SettingScreenDataInterface {
     suspend fun setBMI()
     fun setTrainingSplit(splitId : String):Result
     suspend fun getTrainingSplit():SplitDetails?
+    fun getHeight():Int
+    fun getWeight():Long
+    fun getPhotoAndUrl(): Pair<String,String>
 
 
 }

@@ -16,5 +16,8 @@ object SharedPreferenceCollectionName {
     const val SHARED_PREFERENCE_SPLIT_ID="splitId"
     const val SHARED_PREFERENCE_BMI = "bmi"
     const val SHARED_PREFERENCE = "SharedPreferenceGYMXY"
+    const val SHARED_PREFERENCE_HEIGHT = "height"
+    const val SHARED_PREFERENCE_WEIGHT = "weight"
+
 
 }

@@ -1,0 +1,185 @@
+package com.gymxy.gymxyone.data.offline
+
+object GymExerciseCollection {
+    // CHEST
+    const val CHEST_BENCH_PRESS = "CHEST: BENCH PRESS"
+    const val CHEST_INCLINE_BENCH_PRESS = "CHEST: INCLINE BENCH PRESS"
+    const val CHEST_DECLINE_BENCH_PRESS = "CHEST: DECLINE BENCH PRESS"
+    const val CHEST_DUMBBELL_BENCH_PRESS = "CHEST: DUMBBELL BENCH PRESS"
+    const val CHEST_DUMBBELL_INCLINE_BENCH_PRESS = "CHEST: DUMBBELL INCLINE BENCH PRESS"
+    const val CHEST_DUMBBELL_DECLINE_BENCH_PRESS = "CHEST: DUMBBELL DECLINE BENCH PRESS"
+    const val CHEST_CABLE_FLY = "CHEST: CABLE FLY"
+    const val CHEST_DUMBBELL_FLY = "CHEST: DUMBBELL FLY"
+    const val CHEST_CHEST_PRESS_MACHINE = "CHEST: CHEST PRESS MACHINE"
+    const val CHEST_PEC_DECK_MACHINE = "CHEST: PEC DECK MACHINE"
+    const val CHEST_PUSHUPS = "CHEST: PUSHUPS"
+    const val CHEST_DIPS = "CHEST: DIPS"
+
+    // BACK
+    const val BACK_BENT_OVER_ROW = "BACK: BENT-OVER ROW"
+    const val BACK_BARBELL_ROW = "BACK: BARBELL ROW"
+    const val BACK_DUMBELL_ROW = "BACK: DUMBBELL ROW"
+    const val BACK_CHEST_SUPPORTED_ROW = "BACK: CHEST SUPPORTED ROW"
+    const val BACK_SEATED_ROW = "BACK: SEATED ROW"
+    const val BACK_CABLE_ROW = "BACK: CABLE ROW"
+    const val BACK_LAT_PULLDOWN = "BACK: LAT PULLDOWN"
+    const val BACK_DEADLIFT = "BACK: DEADLIFT"
+    const val BACK_PULLUPS = "BACK: PULLUPS"
+    const val BACK_PLANK = "BACK: PLANK"
+
+    // LEGS
+    const val LEGS_SQUAT = "LEGS: SQUAT"
+    const val LEGS_HACK_SQUAT = "LEGS: HACK SQUAT"
+    const val LEGS_FRONT_SQUAT = "LEGS: FRONT SQUAT"
+    const val LEGS_BULGARIAN_SQUAT = "LEGS: BULGARIAN SQUAT"
+    const val LEGS_LEG_PRESS = "LEGS: LEG PRESS"
+    const val LEGS_LEG_CURL = "LEGS: LEG CURL"
+    const val LEGS_HAMSTRING_CURL = "LEGS: HAMSTRING CURL"
+    const val LEGS_CALF_RAISE = "LEGS: CALF RAISE"
+    const val LEGS_LUNGES = "LEGS: LUNGES"
+    const val LEGS_ROMANIAN_DEADLIFT = "LEGS: ROMANIAN DEADLIFT"
+    const val LEGS_HIP_THRUSTS = "LEGS: HIP THRUSTS"
+
+    // SHOULDERS
+    const val SHOULDERS_OVERHEAD_PRESS = "SHOULDERS: OVERHEAD PRESS"
+    const val SHOULDERS_FRONT_RAISE = "SHOULDERS: FRONT RAISE"
+    const val SHOULDERS_LATERAL_RAISE = "SHOULDERS: LATERAL RAISE"
+    const val SHOULDERS_CABLE_LATERAL_RAISE = "SHOULDERS: CABLE LATERAL RAISE"
+    const val SHOULDERS_FACE_PULL = "SHOULDERS: FACE PULL"
+    const val SHOULDERS_SHRUG = "SHOULDERS: SHRUG"
+    const val SHOULDERS_REVERSE_FLY = "SHOULDERS: REVERSE FLY"
+    const val SHOULDERS_CABLE_REVERSE_FLY = "SHOULDERS: CABLE REVERSE FLY"
+    const val SHOULDERS_DUMBBELL_LATERAL_RAISE = "SHOULDERS: DUMBBELL LATERAL RAISE"
+    const val SHOULDERS_DUMBBELL_FRONT_RAISE = "SHOULDERS: DUMBBELL FRONT RAISE"
+    const val SHOULDERS_DUMBBELL_FLY = "SHOULDERS: DUMBBELL FLY"
+    const val SHOULDERS_BENTOVER_FLY = "SHOULDERS: BENTOVER FLY"
+    const val SHOULDERS_BARBELL_SHRUG = "SHOULDERS: BARBELL SHRUG"
+    const val SHOULDERS_ARNOLD_PRESS = "SHOULDERS: ARNOLD PRESS"
+
+    // ARMS
+    const val ARMS_DUMBBELL_CURL = "ARMS: DUMBBELL CURL"
+    const val ARMS_BICEP_CURL = "ARMS: BICEP CURL"
+    const val ARMS_PREACHER_CURL = "ARMS: PREACHER CURL"
+    const val ARMS_CABLE_BICEP_CURL = "ARMS: CABLE BICEP CURL"
+    const val ARMS_HAMMER_CURL = "ARMS: HAMMER CURL"
+    const val ARMS_SKULL_CRUSHER = "ARMS: SKULL CRUSHER"
+    const val ARMS_CABLE_KICKBACK = "ARMS: CABLE KICKBACK"
+    const val ARMS_OVERHEAD_TRICEP_EXTENSION = "ARMS: OVERHEAD TRICEP EXTENSION"
+    const val ARMS_TRICEP_KICKBACK = "ARMS: TRICEP KICKBACK"
+    const val ARMS_TRICEP_PUSHDOWN = "ARMS: TRICEP PUSHDOWN"
+    const val ARMS_REVERSE_GRIP_TRICEP_PUSHDOWN = "ARMS: REVERSE GRIP TRICEP PUSHDOWN"
+    const val ARMS_CABLE_ROPE_TRICEP_EXTENSION = "ARMS: CABLE ROPE TRICEP EXTENSION"
+
+    //ABS
+    const val ABS_HANGING_KNEE_RAISES = "ABS: HANGING KNEE RAISES"
+    const val ABS_HANGING_LEG_RAISES = "ABS: HANGING LEG RAISES"
+    const val ABS_CABLE_CRUNCH = "ABS: CABLE CRUNCH"
+    const val ABS_CABLE_CRUNCH_MACHINE = "ABS: CABLE CRUNCH MACHINE"
+    const val ABS_WEIGHTED_PLANK = "ABS: WEIGHTED PLANK"
+
+    // FULL BODY
+    const val FULL_BODY_DEADLIFT = "FULL BODY: DEADLIFT"
+    const val FULL_BODY_SQUAT_JUMP = "FULL BODY: SQUAT JUMP"
+    const val FULL_BODY_DUMBELL_ROMANIAN_DEADLIFT = "FULL BODY: DUMBBELL ROMANIAN DEADLIFT"
+
+    val exerciseList = mutableListOf(
+        // CHEST
+        "CHEST: BENCH PRESS",
+        "CHEST: INCLINE BENCH PRESS",
+        "CHEST: DECLINE BENCH PRESS",
+        "CHEST: DUMBBELL BENCH PRESS",
+        "CHEST: DUMBBELL INCLINE BENCH PRESS",
+        "CHEST: DUMBBELL DECLINE BENCH PRESS",
+        "CHEST: CABLE FLY",
+        "CHEST: DUMBBELL FLY",
+        "CHEST: CHEST PRESS MACHINE",
+        "CHEST: PEC DECK MACHINE",
+        "CHEST: PUSHUPS",
+        "CHEST: DIPS",
+
+        // BACK
+        "BACK: BENT-OVER ROW",
+        "BACK: BARBELL ROW",
+        "BACK: DUMBBELL ROW",
+        "BACK: CHEST SUPPORTED ROW",
+        "BACK: SEATED ROW",
+        "BACK: CABLE ROW",
+        "BACK: LAT PULLDOWN",
+        "BACK: DEADLIFT",
+        "BACK: PULLUPS",
+        "BACK: PLANK",
+
+        // LEGS
+        "LEGS: SQUAT",
+        "LEGS: HACK SQUAT",
+        "LEGS: FRONT SQUAT",
+        "LEGS: BULGARIAN SQUAT",
+        "LEGS: LEG PRESS",
+        "LEGS: LEG CURL",
+        "LEGS: HAMSTRING CURL",
+        "LEGS: CALF RAISE",
+        "LEGS: LUNGES",
+        "LEGS: ROMANIAN DEADLIFT",
+        "LEGS: HIP THRUSTS",
+
+        // SHOULDERS
+        "SHOULDERS: OVERHEAD PRESS",
+        "SHOULDERS: FRONT RAISE",
+        "SHOULDERS: LATERAL RAISE",
+        "SHOULDERS: CABLE LATERAL RAISE",
+        "SHOULDERS: FACE PULL",
+        "SHOULDERS: SHRUG",
+        "SHOULDERS: REVERSE FLY",
+        "SHOULDERS: CABLE REVERSE FLY",
+        "SHOULDERS: DUMBBELL LATERAL RAISE",
+        "SHOULDERS: DUMBBELL FRONT RAISE",
+        "SHOULDERS: DUMBBELL FLY",
+        "SHOULDERS: BENTOVER FLY",
+        "SHOULDERS: BARBELL SHRUG",
+        "SHOULDERS: ARNOLD PRESS",
+
+        // ARMS
+        "ARMS: DUMBBELL CURL",
+        "ARMS: BICEP CURL",
+        "ARMS: PREACHER CURL",
+        "ARMS: CABLE BICEP CURL",
+        "ARMS: HAMMER CURL",
+        "ARMS: SKULL CRUSHER",
+        "ARMS: CABLE KICKBACK",
+        "ARMS: OVERHEAD TRICEP EXTENSION",
+        "ARMS: TRICEP KICKBACK",
+        "ARMS: TRICEP PUSHDOWN",
+        "ARMS: REVERSE GRIP TRICEP PUSHDOWN",
+        "ARMS: CABLE ROPE TRICEP EXTENSION",
+
+        //ABS
+        "ABS: HANGING KNEE RAISES",
+        "ABS: HANGING LEG RAISES",
+        "ABS: CABLE CRUNCH",
+        "ABS: CABLE CRUNCH MACHINE",
+        "ABS: WEIGHTED PLANK",
+
+        // FULL BODY
+        "FULL BODY: DEADLIFT",
+        "FULL BODY: SQUAT JUMP",
+        "FULL BODY: DUMBBELL ROMANIAN DEADLIFT"
+    )
+
+    fun addExercise(category: String, exerciseName: String) {
+        val newExercise = "$category: $exerciseName"
+        exerciseList.add(newExercise)
+        println("$newExercise added to the list.")
+    }
+
+    fun deleteExercise(exerciseName: String) {
+        val index = exerciseList.indexOfFirst { it.contains(exerciseName, ignoreCase = true) }
+        if (index != -1) {
+            val removedExercise = exerciseList.removeAt(index)
+            println("$removedExercise removed from the list.")
+        } else {
+            println("$exerciseName not found in the list.")
+        }
+    }
+
+
+}
