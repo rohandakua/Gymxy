@@ -31,6 +31,8 @@ import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveHeight
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SavePerformedDay
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveSplit
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveWeight
+import com.gymxy.gymxyone.domain.useCases.googleAuthUseCase.GetUid
+import com.gymxy.gymxyone.domain.useCases.googleAuthUseCase.IsSignedIn
 import com.gymxy.gymxyone.domain.useCases.googleAuthUseCase.Login
 import com.gymxy.gymxyone.domain.useCases.googleAuthUseCase.Logout
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetBMI
@@ -61,6 +63,7 @@ import com.gymxy.gymxyone.systemPackages.StopwatchRepositoryImplementation
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -76,11 +79,10 @@ object HiltModule {
     }
 
     @Provides
+    @Singleton
     fun providesGoogleIdOption(): GetGoogleIdOption {
         val googleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(true)
             .setServerClientId(WEB_CLIENT_ID)
-            .setAutoSelectEnabled(true)
             .build()
         return googleIdOption
     }
@@ -106,7 +108,7 @@ object HiltModule {
         sharedPreferenceDataHandler: SharedPreferenceDataHandler
     ): GoogleAuthClient {
         return GoogleAuthClient(
-            context, googleIdOption, sharedPreferenceDataHandler
+            context ,googleIdOption, sharedPreferenceDataHandler
         )
     }
 
@@ -465,6 +467,20 @@ object HiltModule {
         googleAuthClient: GoogleAuthClient
     ): Logout{
         return Logout(googleAuthClient)
+    }
+    @Provides
+    @Singleton
+    fun provideIsSignedIn (
+        googleAuthClient: GoogleAuthClient
+    ): IsSignedIn {
+        return IsSignedIn(googleAuthClient)
+    }
+    @Provides
+    @Singleton
+    fun provideGetUid (
+        googleAuthClient: GoogleAuthClient
+    ): GetUid {
+        return GetUid(googleAuthClient)
     }
 
     @Provides

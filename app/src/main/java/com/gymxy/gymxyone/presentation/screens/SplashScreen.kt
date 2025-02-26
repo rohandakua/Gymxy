@@ -5,27 +5,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dotlottie.dlplayer.Mode
 import com.gymxy.gymxyone.R
+import com.gymxy.gymxyone.presentation.composableFunctions.GradientText
+import com.gymxy.gymxyone.presentation.viewmodel.AuthViewModel
+import com.gymxy.gymxyone.presentation.viewmodel.HomePageViewModel
 import com.gymxy.gymxyone.ui.theme.mainBackgroundColor
+import com.gymxy.gymxyone.ui.theme.mainTextColor
+import com.lottiefiles.dotlottie.core.compose.runtime.DotLottieController
 import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 
+//
 //@Preview
 //@Composable
 //fun splashScreenPreview() {
@@ -38,36 +45,59 @@ import com.lottiefiles.dotlottie.core.util.DotLottieSource
 @Composable
 fun SplashScreen(
     modifier: Modifier,
-    navController: NavController
+    navController: NavController,
+    authViewModel: AuthViewModel = hiltViewModel(),
+    homePageViewModel: HomePageViewModel = hiltViewModel()
 ) {
-    val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
-    val insets = WindowInsets.navigationBars.getBottom(LocalDensity.current)
-    val bottomPadding = if (insets > 0) insets.dp else 0.dp
-    var orientation = LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+    // Modifier.safeDrawingPadding() use for the box inside the background image
+    val orientation =
+        LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+    authViewModel.checkSignedInState()
+    val isSignedIn = authViewModel.isSignedInState.collectAsState()
+    val dotLottieController = DotLottieController()
+    if (isSignedIn.value) {
+        LaunchedEffect(true) {
+            homePageViewModel.getListOfPerformedDays() // updates the list of performed days
+        }
+        LaunchedEffect(true) {
+            homePageViewModel.getTrainingSplit() // updates the training split detail in the viewmodel
+
+        }
+        LaunchedEffect(dotLottieController.isComplete) {
+            // TODO move to home screen
+        }
+    } else {
+        LaunchedEffect(dotLottieController.isComplete) {
+            //TODO move to google signin screen
+        }
+
+    }
 
 
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = bottomPadding)
-            .background(mainBackgroundColor) // Apply navigation bar padding
+            .background(color = mainBackgroundColor)  // Color(0xFF10110f)
     ) {
-        if(orientation){
-        Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = R.drawable.mainbackgroundsvg),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
-        }else{
+        if (orientation) {
             Image(
-                modifier = Modifier.fillMaxSize(),
-                painter = painterResource(id=R.drawable.landscapemainbackground),
+                painter = painterResource(id = R.drawable.mainbackgroundsvg),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.landscapemainbackground),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
         }
+    }
+
+
+    //for all the content
+    Box(modifier = Modifier.safeDrawingPadding()) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -76,41 +106,19 @@ fun SplashScreen(
             DotLottieAnimation(
                 source = DotLottieSource.Url("https://lottie.host/3b167c52-a0e1-4816-8e6c-755fd382a465/6Pdggk8Ksp.lottie"),
                 autoplay = true,
-                loop = true,
+                loop = false,
                 speed = 1f,
                 useFrameInterpolation = false,
                 playMode = Mode.FORWARD,
                 modifier = Modifier
                     .rotate(-45f)
-                    .fillMaxSize(.6f)
+                    .fillMaxSize(0.6f),
+                controller = dotLottieController
+
             )
 
-            //TODO  make a call to the viewModel for checking the state , if
-            // User is logged in then load the main screen or else load the login screen
-
-
-            //val dotLottieController = remember { DotLottieController() }
-
-//    LaunchedEffect(UInt) {
-//        dotLottieController.setLoop(true)
-//        dotLottieController.setSpeed(3f)
-//        // Play
-//        dotLottieController.play()
-//        // Pause
-//        dotLottieController.pause()
-//        // Stop
-//        dotLottieController.play()
-//    }
-//    DotLottieAnimation(
-//        source = DotLottieSource.Url("https://lottie.host/a5601e71-4b1b-49a3-bea7-2cdfc3d6e7f9/83sIPSf3bp.lottie"),
-//        autoplay = true,
-//        loop = true,
-//        speed = 1f,
-//        useFrameInterpolation = false,
-//        playMode = Mode.FORWARD,
-//        modifier = Modifier.fillMaxSize(.5f).blur(radius = 1.dp)
-//    )
-
         }
+
     }
+
 }

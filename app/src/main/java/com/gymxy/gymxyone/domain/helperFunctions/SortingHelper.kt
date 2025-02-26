@@ -12,11 +12,11 @@ class SortingHelper @Inject constructor(
     private val getTrainingSplit: GetTrainingSplit
 ) {
     private lateinit var trainingSplit: SplitDetails
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            getTrainingSplit()
-        }
-    }
+//    init {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            getTrainingSplit()
+//        }
+//    }
     private suspend fun getTrainingSplit(){
         trainingSplit = getTrainingSplit.execute()!!
     }

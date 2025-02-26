@@ -21,8 +21,7 @@ class HomePageViewModel @Inject constructor(
     private val deletePerformedDay: DeletePerformedDay,
     private val sortingHelper: SortingHelper,
     private val getPerformedDays: GetPerformedDays,
-    private val getNameAndUrlFromSP: GetNameAndUrlFromSP,
-    private val viewModel: ExercisePageViewModel
+    private val getNameAndUrlFromSP: GetNameAndUrlFromSP
 ):ViewModel() {
     // states
 
@@ -85,13 +84,13 @@ class HomePageViewModel @Inject constructor(
         }
     }
 
-    fun addNewWorkout(indexOfSplit : Int){
-        viewModel.startTimer()
-        viewModel.setSplitDayName(_selectedSplitDetails.value.details[indexOfSplit]!!)
-        viewModel.setSplitId(_selectedSplitDetails.value.splitId)
-        viewModel.setToShowThisInFeed(true)
-        viewModel.setRating(0.0)
-    }
+//    fun addNewWorkout(indexOfSplit : Int){
+//        viewModel.startTimer()
+//        viewModel.setSplitDayName(_selectedSplitDetails.value.details[indexOfSplit]!!)
+//        viewModel.setSplitId(_selectedSplitDetails.value.splitId)
+//        viewModel.setToShowThisInFeed(true)
+//        viewModel.setRating(0.0)
+//    }
 
 
 

@@ -1,7 +1,5 @@
 package com.gymxy.gymxyone.presentation.viewmodel
 
-import android.provider.DocumentsContract.Root
-import androidx.compose.ui.text.capitalize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gymxy.gymxyone.data.offline.GymExerciseCollection
@@ -9,7 +7,6 @@ import com.gymxy.gymxyone.domain.helperFunctions.cmsToFeetInches
 import com.gymxy.gymxyone.domain.models.Result
 import com.gymxy.gymxyone.domain.models.SplitDetails
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveSplit
-import com.gymxy.gymxyone.domain.useCases.googleAuthUseCase.Logout
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetBMI
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetHeight
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetHeightUnit
@@ -66,11 +63,6 @@ class SettingPageViewModel @Inject constructor(
      *  This are firestore Usecase
      */
     private val saveSplit: SaveSplit,
-
-    /**
-     * This are google auth usecase
-     */
-    private val authViewModel: AuthViewModel
 ) : ViewModel() {
     // States
     private val _name = MutableStateFlow<String>("")
@@ -214,9 +206,9 @@ class SettingPageViewModel @Inject constructor(
         }
     }
 
-    suspend fun logout(): Result {
-        return authViewModel.logout()
-    }
+//    suspend fun logout(): Result {
+//        return authViewModel.logout()
+//    }
 
     suspend fun saveNewSplit (): Result {
         return saveSplit.execute(_newSplit.value)

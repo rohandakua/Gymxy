@@ -6,6 +6,7 @@ import com.gymxy.gymxyone.domain.models.EachExercisePerformedDetails
 import com.gymxy.gymxyone.domain.models.EachExerciseReps
 import com.gymxy.gymxyone.domain.models.PerformedDays
 import com.gymxy.gymxyone.domain.models.Result
+import com.gymxy.gymxyone.domain.models.SplitDetails
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SavePerformedDay
 import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.GetFormattedTime
 import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.ResetStopwatch
@@ -107,6 +108,38 @@ class ExercisePageViewModel @Inject constructor(
         _exerciseDetails.value = newDetails
     }
 
+    /**
+     * demo data
+     * val sampleExerciseDetails = mapOf(
+     *     1 to EachExercisePerformedDetails(
+     *         exerciseName = "Bench Press",
+     *         details = listOf(
+     *             EachExerciseReps(weight = 50, reps = 10),
+     *             EachExerciseReps(weight = 60, reps = 8),
+     *             EachExerciseReps(weight = 70, reps = 6)
+     *         )
+     *     ),
+     *     2 to EachExercisePerformedDetails(
+     *         exerciseName = "Squats",
+     *         details = listOf(
+     *             EachExerciseReps(weight = 80, reps = 12),
+     *             EachExerciseReps(weight = 90, reps = 10),
+     *             EachExerciseReps(weight = 100, reps = 8)
+     *         )
+     *     ),
+     *     3 to EachExercisePerformedDetails(
+     *         exerciseName = "Deadlift",
+     *         details = listOf(
+     *             EachExerciseReps(weight = 100, reps = 5),
+     *             EachExerciseReps(weight = 110, reps = 4),
+     *             EachExerciseReps(weight = 120, reps = 3)
+     *         )
+     *     )
+     * )
+     *
+     *
+     */
+
     fun addNewExercise(exerciseName: String) {
         setExerciseDetails(
             _exerciseDetails.value + (index++ to EachExercisePerformedDetails(
@@ -160,6 +193,14 @@ class ExercisePageViewModel @Inject constructor(
 
     fun getExerciseNames(): MutableList<String> {
         return GymExerciseCollection.exerciseList
+    }
+
+    fun addNewWorkout(indexOfSplit : Int , splitDetails:SplitDetails){
+        startTimer()
+        setSplitDayName(splitDetails.details[indexOfSplit]!!)
+        setSplitId(splitDetails.splitId)
+        setToShowThisInFeed(true)
+        setRating(0.0)
     }
 
 
