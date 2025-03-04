@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.dotlottie.dlplayer.Mode
 import com.gymxy.gymxyone.R
 import com.gymxy.gymxyone.presentation.composableFunctions.GradientText
@@ -45,7 +46,7 @@ import com.lottiefiles.dotlottie.core.util.DotLottieSource
 @Composable
 fun SplashScreen(
     modifier: Modifier,
-    navController: NavController,
+    navController: NavHostController,
     authViewModel: AuthViewModel = hiltViewModel(),
     homePageViewModel: HomePageViewModel = hiltViewModel()
 ) {
@@ -64,11 +65,11 @@ fun SplashScreen(
 
         }
         LaunchedEffect(dotLottieController.isComplete) {
-            // TODO move to home screen
+            navController.navigate("home")
         }
     } else {
         LaunchedEffect(dotLottieController.isComplete) {
-            //TODO move to google signin screen
+            navController.navigate("login")
         }
 
     }
@@ -76,7 +77,7 @@ fun SplashScreen(
 
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(color = mainBackgroundColor)  // Color(0xFF10110f)
     ) {

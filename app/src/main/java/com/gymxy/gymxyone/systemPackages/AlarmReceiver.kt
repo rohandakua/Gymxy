@@ -117,7 +117,7 @@ class AlarmReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
         channel.enableVibration(true)
-        channel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500)
+        channel.vibrationPattern = longArrayOf(1000, 2000, 3000, 4000, 5000)
     }
 }
 

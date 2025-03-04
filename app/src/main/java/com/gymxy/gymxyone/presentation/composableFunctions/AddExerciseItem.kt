@@ -19,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -33,8 +32,6 @@ import com.gymxy.gymxyone.domain.helperFunctions.gradientBrush
 import com.gymxy.gymxyone.domain.helperFunctions.unitConversionWeight
 import com.gymxy.gymxyone.domain.models.EachExercisePerformedDetails
 import com.gymxy.gymxyone.domain.models.EachExerciseReps
-import com.gymxy.gymxyone.ui.theme.gradient1
-import com.gymxy.gymxyone.ui.theme.gradient2
 import com.gymxy.gymxyone.ui.theme.mainTextColor
 
 
@@ -50,44 +47,16 @@ fun AddExerciseItem(
         )
     ),
     weightUnit: String = SharedPreferenceCollectionName.SHARED_PREFERENCE_KILOGRAM,
-    addNewSet: () -> Unit = {}
+    addNewSet: (Int, Double, Int, String) -> Unit = {_,_,_,_ -> },
+    index: Int =0 // remove this
 ) {
 
     var isExpanded by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
     var orientation = LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
 
-    /**
-     * for adding new details , add the details in the demo object and make the viewmodel save the changes
-     */
-    // demo
-    val demo = mapOf(                       // by viewmodel.exerciseDetails
-        1 to EachExercisePerformedDetails(
-            exerciseName = "Bench Press",
-            details = listOf(
-                EachExerciseReps(weight = 50000, reps = 10),
-                EachExerciseReps(weight = 60000, reps = 8),
-                EachExerciseReps(weight = 70000, reps = 6)
-            )
-        ),
-        2 to EachExercisePerformedDetails(
-            exerciseName = "Squats",
-            details = listOf(
-                EachExerciseReps(weight = 80000, reps = 12),
-                EachExerciseReps(weight = 90000, reps = 10),
-                EachExerciseReps(weight = 100000, reps = 8)
-            )
-        ),
-        3 to EachExercisePerformedDetails(
-            exerciseName = "Deadlift",
-            details = listOf(
-                EachExerciseReps(weight = 100000, reps = 5),
-                EachExerciseReps(weight = 110000, reps = 4),
-                EachExerciseReps(weight = 120000, reps = 3)
-            )
-        )
-    )
-    EnterSetDetailsDialog(showDialog=showDialog, onDismiss = {showDialog=false})
+
+    EnterSetDetailsDialog(showDialog=showDialog, onDismiss = {showDialog=false} , onConfirm = addNewSet,weightUnit=weightUnit,index=index,)
 
     Column(
         modifier = Modifier

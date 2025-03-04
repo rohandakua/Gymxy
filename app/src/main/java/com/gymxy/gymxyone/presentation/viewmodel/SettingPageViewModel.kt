@@ -6,6 +6,7 @@ import com.gymxy.gymxyone.data.offline.GymExerciseCollection
 import com.gymxy.gymxyone.domain.helperFunctions.cmsToFeetInches
 import com.gymxy.gymxyone.domain.models.Result
 import com.gymxy.gymxyone.domain.models.SplitDetails
+import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetSplitDetails
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveSplit
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetBMI
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetHeight
@@ -26,14 +27,10 @@ import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveWeightSetting
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveWeightUnit
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SetTrainingSplit
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.Locale
 import javax.inject.Inject
-import kotlin.math.log
 
 @HiltViewModel
 class SettingPageViewModel @Inject constructor(
@@ -63,6 +60,8 @@ class SettingPageViewModel @Inject constructor(
      *  This are firestore Usecase
      */
     private val saveSplit: SaveSplit,
+
+    private val getSplitDetails: GetSplitDetails
 ) : ViewModel() {
     // States
     private val _name = MutableStateFlow<String>("")
@@ -172,10 +171,25 @@ class SettingPageViewModel @Inject constructor(
         _bmi.value = getBMI.execute().toDouble()
     }
 
+    private val _bmiCategory = MutableStateFlow<String>("")
+    val bmiCategory: StateFlow<String> get() = _bmiCategory
+    fun setBMICategory() {
+        when(_bmi.value){
+            in 0.0..18.4 -> _bmiCategory.value = "Underweight"
+            in 18.5..24.9 -> _bmiCategory.value = "Healthy weight"
+            in 25.0..29.9 -> _bmiCategory.value = "Overweight"
+            in 30.0..100.0 -> _bmiCategory.value = "Obesity"
+        }
+
+    }
+
     private val _newSplit = MutableStateFlow<SplitDetails>(SplitDetails())
     val newSplit: StateFlow<SplitDetails> get() = _newSplit
-    suspend fun setNewSplit(splitDetails: SplitDetails) {
+    fun setNewSplit(splitDetails: SplitDetails) {
         _newSplit.value = splitDetails
+    }
+    suspend fun saveNewSplit (): Result {
+        return saveSplit.execute(_newSplit.value)
     }
 
 
@@ -205,14 +219,19 @@ class SettingPageViewModel @Inject constructor(
             setBMI()
         }
     }
-
-//    suspend fun logout(): Result {
-//        return authViewModel.logout()
-//    }
-
-    suspend fun saveNewSplit (): Result {
-        return saveSplit.execute(_newSplit.value)
+    private var splitDetailsList_ = MutableStateFlow<List<SplitDetails>>(listOf())
+    val splitDetailsList: StateFlow<List<SplitDetails>> get() = splitDetailsList_
+    fun setSplitDetailsList (a:List<SplitDetails>){
+        splitDetailsList_.value= a
     }
+
+
+    suspend fun getAllSplitInList(): List<SplitDetails>? {
+        getSplitDetails.execute()?.let { setSplitDetailsList(it) }
+        return splitDetailsList_.value
+    }
+
+
 
     private val _exerciseList = MutableStateFlow<List<String>>(GymExerciseCollection.exerciseList)
     val exerciseList : StateFlow<List<String>> get() = _exerciseList

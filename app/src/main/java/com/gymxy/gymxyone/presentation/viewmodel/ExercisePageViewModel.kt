@@ -2,6 +2,8 @@ package com.gymxy.gymxyone.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.gymxy.gymxyone.data.offline.GymExerciseCollection
+import com.gymxy.gymxyone.domain.helperFunctions.kilogramToGram
+import com.gymxy.gymxyone.domain.helperFunctions.poundToGram
 import com.gymxy.gymxyone.domain.models.EachExercisePerformedDetails
 import com.gymxy.gymxyone.domain.models.EachExerciseReps
 import com.gymxy.gymxyone.domain.models.PerformedDays
@@ -28,7 +30,7 @@ class ExercisePageViewModel @Inject constructor(
     private val savePerformedDay: SavePerformedDay,
 ) : ViewModel() {
     //State
-        private var stopwatchRunning = false
+    private var stopwatchRunning = false
     fun startTimer() {
         stopwatchRunning = true
         setStartTime(System.currentTimeMillis())
@@ -155,9 +157,12 @@ class ExercisePageViewModel @Inject constructor(
      * if state is not changing then make the use of setExerciseDetails
      * @param index = this is the index of the exercise in the exerciseDetails map
      */
-    fun addReps(index: Int, weight: Long, reps: Int) {
-        _exerciseDetails.value[index]!!.details += EachExerciseReps(weight, reps)
+    fun addReps(index: Int, weight: Double, reps: Int, weightUnit: String) {
+        _exerciseDetails.value[index]!!.details += EachExerciseReps(
+            if (weightUnit == "kg") kilogramToGram(weight) else poundToGram(weight), reps
+        )
     }
+
     private fun clear() {
         // Reset each MutableStateFlow to its default value
         _splitId.value = ""
@@ -195,7 +200,7 @@ class ExercisePageViewModel @Inject constructor(
         return GymExerciseCollection.exerciseList
     }
 
-    fun addNewWorkout(indexOfSplit : Int , splitDetails:SplitDetails){
+    fun addNewWorkout(indexOfSplit: Int, splitDetails: SplitDetails) {
         startTimer()
         setSplitDayName(splitDetails.details[indexOfSplit]!!)
         setSplitId(splitDetails.splitId)

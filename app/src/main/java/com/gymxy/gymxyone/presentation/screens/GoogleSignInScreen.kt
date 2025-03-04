@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,18 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavHostController
 import com.gymxy.gymxyone.R
 import com.gymxy.gymxyone.presentation.composableFunctions.GradientText
 import com.gymxy.gymxyone.presentation.viewmodel.AuthViewModel
 import com.gymxy.gymxyone.ui.theme.mainBackgroundColor
-import dagger.hilt.android.qualifiers.ActivityContext
 import kotlinx.coroutines.launch
 
 //@Preview
@@ -44,7 +39,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun GoogleSignInScreen (
     modifier: Modifier,
-    navController: NavController,
+    navController: NavHostController,
     activityContext: Context,
     authViewModel: AuthViewModel= hiltViewModel(),
     activity: Activity
@@ -90,6 +85,9 @@ fun GoogleSignInScreen (
             }
         }
 
+    }
+    if(isSignedIn.value){
+        navController.navigate("home")
     }
 
 

@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,17 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gymxy.gymxyone.R
@@ -44,11 +36,7 @@ import com.gymxy.gymxyone.domain.helperFunctions.unitConversionWeight
 import com.gymxy.gymxyone.domain.models.EachExercisePerformedDetails
 import com.gymxy.gymxyone.domain.models.EachExerciseReps
 import com.gymxy.gymxyone.domain.models.PerformedDays
-import com.gymxy.gymxyone.ui.theme.gradient1
-import com.gymxy.gymxyone.ui.theme.gradient2
-import com.gymxy.gymxyone.ui.theme.mainBackgroundColor
 import com.gymxy.gymxyone.ui.theme.mainTextColor
-import com.gymxy.gymxyone.ui.theme.secondaryTextColor
 
 @Preview(showBackground = true , backgroundColor = 0L)
 @Composable

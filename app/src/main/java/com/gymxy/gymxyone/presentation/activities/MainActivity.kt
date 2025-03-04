@@ -1,30 +1,24 @@
 package com.gymxy.gymxyone.presentation.activities
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,10 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.navigation.compose.rememberNavController
 import com.gymxy.gymxyone.R
-import com.gymxy.gymxyone.presentation.screens.GoogleSignInScreen
-import com.gymxy.gymxyone.presentation.screens.HomeScreen
-import com.gymxy.gymxyone.presentation.screens.SettingPage
-import com.gymxy.gymxyone.presentation.screens.SplashScreen
+import com.gymxy.gymxyone.presentation.navigation.NavControllerClass
 import com.gymxy.gymxyone.ui.theme.CustomTheme
 import com.gymxy.gymxyone.ui.theme.GymxyTheme
 import com.gymxy.gymxyone.ui.theme.mainCardBackground
@@ -48,13 +39,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val c = CredentialManager.create(this)
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
             CustomTheme {
                // SplashScreen(modifier = Modifier,navController = rememberNavController() )
                 //GoogleSignInScreen(modifier = Modifier, navController = rememberNavController() , activityContext = this, activity = this@MainActivity)
                // HomeScreen()
-                SettingPage()
+//                SettingPage()
+                val navController = rememberNavController()
+                NavControllerClass(
+                    navController = navController,
+                    activityContext = this,
+                    activity = this@MainActivity,
+                    modifier = Modifier
+                )
 
            }
         }

@@ -9,6 +9,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,17 +34,24 @@ import com.gymxy.gymxyone.ui.theme.mainBackgroundColor
 import com.gymxy.gymxyone.ui.theme.mainCardBackground
 import com.gymxy.gymxyone.ui.theme.mainTextColor
 
-
 @Composable
 @Preview
 fun EnterSetDetailsDialog(
     showDialog: Boolean = true,
-    onDismiss: () -> Unit={},
-    onConfirm: (String, String) -> Unit={_,_->},
+    onDismiss: () -> Unit = {},
+    /**
+     * @param onConfirm
+     * This onConfirm takes a int, double, int for (index, weight, reps) and should convert the weight into desired
+     * unit and then call the save function from the view model
+     */
+    onConfirm: (Int, Double, Int, String) -> Unit = { _, _, _, _ -> },
     weightUnit: String = "kg",
+    index: Int = 1 // TODO remove this
 ) {
-    var firstNumber by remember { mutableStateOf("") }
-    var secondNumber by remember { mutableStateOf("") }
+    var weight by remember { mutableStateOf("") }
+    var reps by remember { mutableStateOf("") }
+    var weightError by remember { mutableStateOf<String?>(null) }
+    var repsError by remember { mutableStateOf<String?>(null) }
 
     val firstFocusRequester = remember { FocusRequester() }
     val secondFocusRequester = remember { FocusRequester() }
@@ -62,8 +70,16 @@ fun EnterSetDetailsDialog(
             text = {
                 Column {
                     OutlinedTextField(
-                        value = firstNumber,
-                        onValueChange = { firstNumber = it },
+                        value = weight,
+                        onValueChange = {
+                            weight = it
+                            weightError =
+                                if (it.toDoubleOrNull() == null || it.toDoubleOrNull()!! <= 0) {
+                                    "Enter a valid weight"
+                                } else {
+                                    null
+                                }
+                        },
                         label = { NormalText(text = "Weight in $weightUnit", textSize = 18) },
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,
@@ -79,26 +95,53 @@ fun EnterSetDetailsDialog(
                             fontWeight = FontWeight.Bold
                         ),
                         modifier = Modifier.focusRequester(firstFocusRequester),
+                        isError = weightError != null,
                         colors = TextFieldDefaults.colors(
                             focusedTextColor = mainTextColor,
                             unfocusedTextColor = mainTextColor,
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
-                            focusedIndicatorColor = mainTextColor,
-                            unfocusedIndicatorColor = mainTextColor
+                            focusedIndicatorColor = if (weightError != null) Color.Red else mainTextColor,
+                            unfocusedIndicatorColor = if (weightError != null) Color.Red else mainTextColor
                         )
                     )
+                    weightError?.let {
+                        Text(it, color = Color.Red, fontSize = 12.sp)
+                    }
+
                     Spacer(modifier = Modifier.height(8.dp))
+
                     OutlinedTextField(
-                        value = secondNumber,
-                        onValueChange = { secondNumber = it },
+                        value = reps,
+                        onValueChange = {
+                            reps = it
+                            repsError = if (it.toIntOrNull() == null || it.toIntOrNull()!! <= 0) {
+                                "Enter a valid number of reps"
+                            } else {
+                                null
+                            }
+                        },
                         label = { NormalText(text = "Repetitions", textSize = 18) },
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Done
                         ),
                         keyboardActions = KeyboardActions(
-                            onDone = { onConfirm(firstNumber,secondNumber) }
+                            onDone = {
+                                val weightValue = weight.toDoubleOrNull()
+                                val repsValue = reps.toIntOrNull()
+
+                                if (weightValue != null && weightValue > 0 && repsValue != null && repsValue > 0) {
+                                    onConfirm(
+                                        index,
+                                        weightValue, repsValue, weightUnit
+                                    )
+                                    onDismiss()
+                                } else {
+                                    weightError = "Enter a valid weight"
+                                    repsError = "Enter a valid number of reps"
+                                }
+                            }
                         ),
                         singleLine = true,
                         textStyle = TextStyle(
@@ -107,23 +150,40 @@ fun EnterSetDetailsDialog(
                             fontWeight = FontWeight.Bold
                         ),
                         modifier = Modifier.focusRequester(secondFocusRequester),
+                        isError = repsError != null,
                         colors = TextFieldDefaults.colors(
                             focusedTextColor = mainTextColor,
                             unfocusedTextColor = mainTextColor,
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
-                            focusedIndicatorColor = mainTextColor,
-                            unfocusedIndicatorColor = mainTextColor
+                            focusedIndicatorColor = if (repsError != null) Color.Red else mainTextColor,
+                            unfocusedIndicatorColor = if (repsError != null) Color.Red else mainTextColor
                         )
                     )
+                    repsError?.let {
+                        Text(it, color = Color.Red, fontSize = 12.sp)
+                    }
                 }
             },
             confirmButton = {
                 Button(
-                    onClick = { onConfirm(firstNumber, secondNumber) },
+                    onClick = {
+                        val weightValue = weight.toDoubleOrNull()
+                        val repsValue = reps.toIntOrNull()
+
+                        if (weightValue != null && weightValue > 0 && repsValue != null && repsValue > 0) {
+                            onConfirm(index, weightValue, repsValue,weightUnit)
+                            onDismiss()
+                        } else {
+                            weightError = "Enter a valid weight"
+                            repsError = "Enter a valid number of reps"
+                        }
+                    },
+                    enabled = weight.toDoubleOrNull() != null && weight.toDoubleOrNull()!! > 0 &&
+                            reps.toIntOrNull() != null && reps.toIntOrNull()!! > 0,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = mainCardBackground,
-                        disabledContainerColor = mainCardBackground
+                        disabledContainerColor = Color.Gray
                     )
                 ) {
                     NormalText(text = "OK", textSize = 18)
@@ -145,5 +205,3 @@ fun EnterSetDetailsDialog(
         )
     }
 }
-
-

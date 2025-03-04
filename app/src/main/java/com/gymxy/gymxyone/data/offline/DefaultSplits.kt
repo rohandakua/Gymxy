@@ -40,3 +40,12 @@ object DefaultSplits {
         )
     )
 }
+
+/**
+ * @property AddNewSplitItem is for making the user add a new split , it is only to be used by the
+ * system for identifying the user actions and nothing else. It is not to be modified and touched.
+ */
+object AddNewSplitItem {
+    val split by lazy { SplitDetails(splitName = addNewSplit, splitId = "addNewSplitSystemDefault", details = mapOf()) }
+    const val addNewSplit = "*** Add New Split ***"
+}
