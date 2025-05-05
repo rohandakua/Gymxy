@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetTrainingSplit @Inject constructor(
     private val settingScreenDataInterface: SettingScreenDataInterface
 ) {
-    suspend fun execute(unit: String
+    suspend fun execute(
     ): SplitDetails? {
         return withContext(Dispatchers.IO){ settingScreenDataInterface.getTrainingSplit()}
     }

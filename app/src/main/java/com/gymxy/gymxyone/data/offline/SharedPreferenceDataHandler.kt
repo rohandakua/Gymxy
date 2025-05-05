@@ -91,6 +91,10 @@ class SharedPreferenceDataHandler @Inject constructor(
         )
     }
 
+    /**
+     * @fun saveNotificationTime
+     * this should store time for a day in milliseconds
+     */
     fun saveNotificationTime(time: Long) {
         sharedPreferences.edit().putLong(
             SharedPreferenceCollectionName.SHARED_PREFERENCE_TIME_TO_GET_NOTIFICATIONS,
@@ -131,5 +135,19 @@ class SharedPreferenceDataHandler @Inject constructor(
     fun getBMI(): String?{
         return sharedPreferences.getString(SharedPreferenceCollectionName.SHARED_PREFERENCE_BMI,null)
     }
+
+    fun saveHeight(ht:Int){
+        sharedPreferences.edit().putInt(SharedPreferenceCollectionName.SHARED_PREFERENCE_HEIGHT,ht).apply()
+    }
+    fun saveWeight(wt:Long){
+        sharedPreferences.edit().putLong(SharedPreferenceCollectionName.SHARED_PREFERENCE_WEIGHT,wt).apply()
+    }
+    fun getHeight(): Int{
+        return sharedPreferences.getInt(SharedPreferenceCollectionName.SHARED_PREFERENCE_HEIGHT,0)
+    }
+    fun getWeight(): Long{
+        return sharedPreferences.getLong(SharedPreferenceCollectionName.SHARED_PREFERENCE_WEIGHT,0L)
+    }
+
 
 }

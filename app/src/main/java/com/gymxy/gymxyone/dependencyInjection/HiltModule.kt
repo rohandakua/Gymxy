@@ -1,5 +1,7 @@
 package com.gymxy.gymxyone.dependencyInjection
 
+import android.app.AlarmManager
+import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -8,11 +10,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.gymxy.gymxyone.Secrets.WEB_CLIENT_ID
+import com.gymxy.gymxyone.auth.GoogleAuthClient
 import com.gymxy.gymxyone.data.offline.SettingDataHandler
 import com.gymxy.gymxyone.data.offline.SharedPreferenceCollectionName
 import com.gymxy.gymxyone.data.offline.SharedPreferenceDataHandler
 import com.gymxy.gymxyone.data.online.FirestoreDataHandler
+import com.gymxy.gymxyone.domain.helperFunctions.SortingHelper
+import com.gymxy.gymxyone.domain.repositoryInterface.AlarmSchedulerInterface
 import com.gymxy.gymxyone.domain.repositoryInterface.SettingScreenDataInterface
+import com.gymxy.gymxyone.domain.repositoryInterface.StopwatchRepository
+import com.gymxy.gymxyone.domain.useCases.alarmUsecases.CancelAlarm
+import com.gymxy.gymxyone.domain.useCases.alarmUsecases.ScheduleAlarm
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.DeletePerformedDay
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetHeightDetails
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.GetPerformedDays
@@ -23,12 +31,19 @@ import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveHeight
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SavePerformedDay
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveSplit
 import com.gymxy.gymxyone.domain.useCases.firestoreUsecases.SaveWeight
+import com.gymxy.gymxyone.domain.useCases.googleAuthUseCase.GetUid
+import com.gymxy.gymxyone.domain.useCases.googleAuthUseCase.IsSignedIn
+import com.gymxy.gymxyone.domain.useCases.googleAuthUseCase.Login
+import com.gymxy.gymxyone.domain.useCases.googleAuthUseCase.Logout
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetBMI
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetHeight
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetHeightUnit
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetNameAndUrlFromSP
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetNotificationPermission
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetNotificationTime
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetRaingPermission
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetTrainingSplit
+import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetWeight
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.GetWeightUnit
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveHeightSetting
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveHeightUnit
@@ -38,9 +53,17 @@ import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveRatingPermission
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveWeightSetting
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SaveWeightUnit
 import com.gymxy.gymxyone.domain.useCases.settingUsecases.SetTrainingSplit
+import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.GetFormattedTime
+import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.PauseStopwatch
+import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.ResetStopwatch
+import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.StartStopwatch
+import com.gymxy.gymxyone.systemPackages.AlarmSchedulerInterfaceImplementation
+import com.gymxy.gymxyone.systemPackages.MediaPlayerManager
+import com.gymxy.gymxyone.systemPackages.StopwatchRepositoryImplementation
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -56,11 +79,10 @@ object HiltModule {
     }
 
     @Provides
+    @Singleton
     fun providesGoogleIdOption(): GetGoogleIdOption {
         val googleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(true)
             .setServerClientId(WEB_CLIENT_ID)
-            .setAutoSelectEnabled(true)
             .build()
         return googleIdOption
     }
@@ -80,15 +102,30 @@ object HiltModule {
 
     @Provides
     @Singleton
-    fun provideSharedPreferences(
-        @ApplicationContext context: Context
-    ): SharedPreferences {
-        return context.getSharedPreferences(SharedPreferenceCollectionName.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE)
+    fun provideGoogleAuthClient(
+        @ApplicationContext context: Context,
+        googleIdOption: GetGoogleIdOption,
+        sharedPreferenceDataHandler: SharedPreferenceDataHandler
+    ): GoogleAuthClient {
+        return GoogleAuthClient(
+            context ,googleIdOption, sharedPreferenceDataHandler
+        )
     }
 
     @Provides
     @Singleton
-    fun provideSharedPrefenceDataHandler(
+    fun provideSharedPreferences(
+        @ApplicationContext context: Context
+    ): SharedPreferences {
+        return context.getSharedPreferences(
+            SharedPreferenceCollectionName.SHARED_PREFERENCE,
+            Context.MODE_PRIVATE
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideSharedPrefrenceDataHandler(
         sharedPreferences: SharedPreferences
     ): SharedPreferenceDataHandler {
         return SharedPreferenceDataHandler(sharedPreferences)
@@ -109,70 +146,79 @@ object HiltModule {
     @Singleton
     fun provideSaveHeight(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ) : SaveHeight {
+    ): SaveHeight {
         return SaveHeight(firestoreDataHandlingInterface)
     }
+
     @Provides
     @Singleton
     fun provideSavePerformedDay(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ) : SavePerformedDay {
+    ): SavePerformedDay {
         return SavePerformedDay(firestoreDataHandlingInterface)
     }
+
     @Provides
     @Singleton
     fun provideSaveSplit(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ) : SaveSplit {
+    ): SaveSplit {
         return SaveSplit(firestoreDataHandlingInterface)
     }
+
     @Provides
     @Singleton
     fun provideSaveWeight(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ) : SaveWeight {
+    ): SaveWeight {
         return SaveWeight(firestoreDataHandlingInterface)
     }
+
     @Provides
     @Singleton
     fun provideGetHeightDetails(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ) : GetHeightDetails {
+    ): GetHeightDetails {
         return GetHeightDetails(firestoreDataHandlingInterface)
     }
+
     @Provides
     @Singleton
     fun provideGetWeightDetails(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ) : GetWeightDetails {
+    ): GetWeightDetails {
         return GetWeightDetails(firestoreDataHandlingInterface)
     }
+
     @Provides
     @Singleton
     fun provideGetSplitDetails(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ) : GetSplitDetails {
+    ): GetSplitDetails {
         return GetSplitDetails(firestoreDataHandlingInterface)
     }
+
     @Provides
     @Singleton
     fun provideGetPerformedDays(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ) : GetPerformedDays {
+    ): GetPerformedDays {
         return GetPerformedDays(firestoreDataHandlingInterface)
     }
+
     @Provides
     @Singleton
     fun provideDeletePerformedDays(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ) : DeletePerformedDay {
+    ): DeletePerformedDay {
         return DeletePerformedDay(firestoreDataHandlingInterface)
     }
+
     @Provides
     @Singleton
     fun provideGetSplitById(
         firestoreDataHandlingInterface: FirestoreDataHandlingInterface
-    ): GetSplitById{
+    ): GetSplitById {
         return GetSplitById(firestoreDataHandlingInterface)
     }
 
@@ -185,7 +231,7 @@ object HiltModule {
         getSplitById: GetSplitById,
         getWeightDetails: GetWeightDetails,
         getHeightDetails: GetHeightDetails
-    ): SettingScreenDataInterface{
+    ): SettingScreenDataInterface {
         return SettingDataHandler(
             sharedPreferenceDataHandler,
             saveHeight,
@@ -203,6 +249,7 @@ object HiltModule {
     ): GetBMI {
         return GetBMI(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideHeightUnit(
@@ -210,13 +257,15 @@ object HiltModule {
     ): GetHeightUnit {
         return GetHeightUnit(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
-    fun provideGetNotficationPermission(
+    fun provideGetNotificationPermission(
         settingScreenDataInterface: SettingScreenDataInterface
     ): GetNotificationPermission {
         return GetNotificationPermission(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideGetNotificationTime(
@@ -224,6 +273,7 @@ object HiltModule {
     ): GetNotificationTime {
         return GetNotificationTime(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideGetRatingPermission(
@@ -231,6 +281,7 @@ object HiltModule {
     ): GetRaingPermission {
         return GetRaingPermission(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideGetTrainingSplit(
@@ -238,6 +289,7 @@ object HiltModule {
     ): GetTrainingSplit {
         return GetTrainingSplit(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideGetWeightUnit(
@@ -245,6 +297,7 @@ object HiltModule {
     ): GetWeightUnit {
         return GetWeightUnit(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideSaveHeightSetting(
@@ -252,6 +305,7 @@ object HiltModule {
     ): SaveHeightSetting {
         return SaveHeightSetting(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideSaveHeightUnit(
@@ -259,6 +313,7 @@ object HiltModule {
     ): SaveHeightUnit {
         return SaveHeightUnit(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideSaveNotificationPermission(
@@ -266,6 +321,7 @@ object HiltModule {
     ): SaveNotificationPermission {
         return SaveNotificationPermission(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideSaveNotificationTime(
@@ -273,6 +329,7 @@ object HiltModule {
     ): SaveNotificationTime {
         return SaveNotificationTime(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideSaveRatingPermission(
@@ -280,6 +337,7 @@ object HiltModule {
     ): SaveRatingPermission {
         return SaveRatingPermission(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideSaveWeightSetting(
@@ -287,6 +345,7 @@ object HiltModule {
     ): SaveWeightSetting {
         return SaveWeightSetting(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideSaveWeightUnit(
@@ -294,6 +353,7 @@ object HiltModule {
     ): SaveWeightUnit {
         return SaveWeightUnit(settingScreenDataInterface)
     }
+
     @Provides
     @Singleton
     fun provideSetTrainingSplit(
@@ -302,6 +362,149 @@ object HiltModule {
         return SetTrainingSplit(settingScreenDataInterface)
     }
 
+    @Provides
+    @Singleton
+    fun provideMediaPlayerManager(
+        @ApplicationContext context: Context
+    ): MediaPlayerManager {
+        return MediaPlayerManager(context)
+    }
+
+    @Provides
+    fun providesNotificationManager(
+        @ApplicationContext context: Context
+    ): NotificationManager {
+        return try {
+            val notificationManager: NotificationManager =
+                context.getSystemService(NotificationManager::class.java) as NotificationManager
+            notificationManager
+        } catch (e: Exception) {
+            throw RuntimeException("Error in creating notification manager")
+        }
+    }
+
+    @Provides
+    fun providesAlarmSchedulerInterface(
+        @ApplicationContext context: Context,
+        alarmManager: AlarmManager,
+    ): AlarmSchedulerInterface {
+        return AlarmSchedulerInterfaceImplementation(context, alarmManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlarmManager(@ApplicationContext context: Context): AlarmManager {
+        return context.getSystemService(AlarmManager::class.java)
+
+    }
+
+    @Provides
+    fun provideCancelAlarm(
+        alarmSchedulerInterface: AlarmSchedulerInterface,
+        getNotificationTime: GetNotificationTime
+    ): CancelAlarm {
+        return CancelAlarm(alarmSchedulerInterface, getNotificationTime)
+    }
+
+    @Provides
+    fun provideScheduleAlarm(
+        alarmSchedulerInterface: AlarmSchedulerInterface,
+        getNotificationTime: GetNotificationTime
+    ): ScheduleAlarm {
+        return ScheduleAlarm(alarmSchedulerInterface, getNotificationTime)
+    }
+
+    @Provides
+    @Singleton
+    fun providesStopwatchRepository(): StopwatchRepository {
+        return StopwatchRepositoryImplementation()
+
+    }
+
+    @Provides
+    fun providesGetFormattedTimeUsecase(
+        stopwatchRepository: StopwatchRepository
+    ): GetFormattedTime {
+        return GetFormattedTime(stopwatchRepository)
+    }
+
+    @Provides
+    fun providesPauseStopwatch(
+        stopwatchRepository: StopwatchRepository
+    ): PauseStopwatch {
+        return PauseStopwatch(stopwatchRepository)
+    }
+
+    @Provides
+    fun providesResetStopwatch(stopwatchRepository: StopwatchRepository): ResetStopwatch {
+        return ResetStopwatch(stopwatchRepository)
+    }
+
+    @Provides
+    fun providesStartStopwatch(stopwatchRepository: StopwatchRepository): StartStopwatch {
+        return StartStopwatch(stopwatchRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSortingHelper(
+        getTrainingSplit: GetTrainingSplit
+    ): SortingHelper {
+        return SortingHelper(getTrainingSplit)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLogin (
+        googleAuthClient: GoogleAuthClient
+    ): Login{
+        return Login(googleAuthClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLogout (
+        googleAuthClient: GoogleAuthClient
+    ): Logout{
+        return Logout(googleAuthClient)
+    }
+    @Provides
+    @Singleton
+    fun provideIsSignedIn (
+        googleAuthClient: GoogleAuthClient
+    ): IsSignedIn {
+        return IsSignedIn(googleAuthClient)
+    }
+    @Provides
+    @Singleton
+    fun provideGetUid (
+        googleAuthClient: GoogleAuthClient
+    ): GetUid {
+        return GetUid(googleAuthClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetWeight(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetWeight {
+        return GetWeight(settingScreenDataInterface)
+    }
+    @Provides
+    @Singleton
+    fun provideGetHeight(
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetHeight {
+        return GetHeight(settingScreenDataInterface)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetNameAndUrlSP (
+        settingScreenDataInterface: SettingScreenDataInterface
+    ): GetNameAndUrlFromSP {
+        return GetNameAndUrlFromSP(settingScreenDataInterface)
+    }
 
 
 }

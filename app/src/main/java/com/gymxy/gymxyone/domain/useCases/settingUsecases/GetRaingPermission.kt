@@ -6,7 +6,7 @@ import javax.inject.Inject
 class GetRaingPermission@Inject constructor(
     private val settingScreenDataInterface: SettingScreenDataInterface
 ) {
-    fun execute(unit: String
+    fun execute(
     ): Boolean {
         return settingScreenDataInterface.getRatingOrNot()
     }

@@ -132,7 +132,9 @@ class SettingDataHandler @Inject constructor(
         val weightList = getWeightDetails.execute()
         val height = heightList?.first()?.height
         val weight = weightList?.first()?.weight
-        val bmi = calculateBMI(weight!!,height!!)
+        sharedPreferenceDataHandler.saveHeight(height!!)
+        sharedPreferenceDataHandler.saveWeight(weight!!)
+        val bmi = calculateBMI(weight,height)
         sharedPreferenceDataHandler.saveBMI(bmi)
     }
 
@@ -159,6 +161,17 @@ class SettingDataHandler @Inject constructor(
             "split4" to DefaultSplits.split4
         )
         return defaultSplits[splitId] ?: getSplitById.execute(splitId)
+    }
+
+    override fun getHeight(): Int{
+        return sharedPreferenceDataHandler.getHeight()
+    }
+    override fun getWeight(): Long{
+        return sharedPreferenceDataHandler.getWeight()
+    }
+
+    override fun getPhotoAndUrl(): Pair<String, String> {
+        return Pair(sharedPreferenceDataHandler.getName()!!, sharedPreferenceDataHandler.getPhoto()!!)
     }
 
 }
