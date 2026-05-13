@@ -3,7 +3,6 @@ package com.gymxy.gymxyone.auth
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.provider.Settings
 import android.util.Log
 import androidx.credentials.ClearCredentialStateRequest
@@ -11,25 +10,19 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.NoCredentialException
-import com.dotlottie.dlplayer.Event
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.gymxy.gymxyone.Secrets.WEB_CLIENT_ID
 import com.gymxy.gymxyone.data.offline.SharedPreferenceDataHandler
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 import com.gymxy.gymxyone.domain.models.Result
-import dagger.hilt.android.qualifiers.ActivityContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 
 class GoogleAuthClient @Inject constructor(
@@ -93,31 +86,39 @@ class GoogleAuthClient @Inject constructor(
             when (val credential = result.credential) {
                 // GoogleIdToken credential
                 is CustomCredential -> {
-                    Log.d(TAG,credential.toString())
                     if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                         try {
+                            Log.d(TAG,credential.toString())
                             val googleIdTokenCredential = GoogleIdTokenCredential
                                 .createFrom(credential.data)
                             val authCredential =
                                 GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
                             val user = Firebase.auth.signInWithCredential(authCredential).await().user
+                            Log.d(TAG,"reached in handleSignIn if block in line 97")
                             user?.let {
+                                Log.d(TAG, "user = reached in handleSignIn if block in line 99")
                                 if (it.isAnonymous.not()) {
+                                    Log.d(TAG, "in if  user = $it")
                                     sharedPreferenceDataHandler.saveUid(it.uid)
+                                    Log.d(TAG,"reached in handleSignIn if block in line 100 after saving uid uid = ${sharedPreferenceDataHandler.getUid()}")
                                     sharedPreferenceDataHandler.saveName(it.displayName.toString())
+                                    Log.d(TAG,"reached in handleSignIn if block in line 102 after saving name name = ${sharedPreferenceDataHandler.getName()}")
                                     sharedPreferenceDataHandler.savePhoto(it.photoUrl.toString())
-                                    Result.SUCCESS
+                                    Log.d(TAG,"reached in handleSignIn if block in line 103 after saving photo photo = ${sharedPreferenceDataHandler.getPhoto()}")
+
                                 }
                             }
                         } catch (e: GoogleIdTokenParsingException) {
                             Log.e(TAG, "Received an invalid google id token response", e)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error signing in with google", e)
                         }
-
+                        Result.SUCCESS
                     }
                 }
 
             }
-            Result.FAILURE
+            Result.SUCCESS
         }
     }
 

@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.gymxy.gymxyone.presentation.screens.GoogleSignInScreen
 import com.gymxy.gymxyone.presentation.screens.HomeScreen
 import com.gymxy.gymxyone.presentation.screens.SaveExercisePage
+import com.gymxy.gymxyone.presentation.screens.SettingPage
 import com.gymxy.gymxyone.presentation.screens.SplashScreen
 
 /**
@@ -22,29 +23,46 @@ import com.gymxy.gymxyone.presentation.screens.SplashScreen
 
 @Composable
 fun NavControllerClass(
-    navController: NavHostController ,
+    navController: NavHostController,
     activityContext: Context,
     activity: Activity,
     modifier: Modifier
 ) {
-    NavHost(navController = navController, startDestination = "splash"){
-        composable("login"){
-            GoogleSignInScreen(modifier = modifier, navController = navController, activityContext = activityContext , activity = activity )
-
+    NavHost(
+        navController = navController,
+        startDestination = "splash"
+    ) {
+        composable("login") {
+            GoogleSignInScreen(
+                modifier = modifier,
+                navController = navController,
+                activityContext = activityContext,
+                activity = activity
+            )
         }
-        composable("home"){
-            HomeScreen(modifier = modifier, navController = navController)
-
+        composable("home") {
+            HomeScreen(
+                modifier = modifier,
+                navController = navController
+            )
         }
-        composable("setting"){
-            HomeScreen(modifier = modifier, navController = navController)
-
+        composable("setting") {
+            SettingPage(
+                modifier = modifier,
+                navController = navController
+            )
         }
-        composable("splash"){
-            SplashScreen(modifier = modifier, navController = navController )
+        composable("splash") {
+            SplashScreen(
+                modifier = modifier,
+                navController = navController
+            )
         }
-        composable("saveExercise"){
-            SaveExercisePage(modifier = modifier, navController = navController)
+        composable("saveExercise") {
+            SaveExercisePage(
+                modifier = modifier,
+                navController = navController
+            )
         }
     }
 }

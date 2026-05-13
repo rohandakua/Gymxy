@@ -1,6 +1,7 @@
 package com.gymxy.gymxyone.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gymxy.gymxyone.domain.helperFunctions.SortingHelper
 import com.gymxy.gymxyone.domain.helperFunctions.mapToList
 import com.gymxy.gymxyone.domain.models.PerformedDays
@@ -31,8 +32,8 @@ class HomePageViewModel @Inject constructor(
     val list: StateFlow<List<PerformedDays>> get() = _list
     suspend fun getListOfPerformedDays() {
         val tempList = getPerformedDays.execute()
-        for (i in tempList!!) {
-            _list.value += i
+        tempList?.let {
+            _list.value = tempList.toList()
         }
     }
 
@@ -61,20 +62,20 @@ class HomePageViewModel @Inject constructor(
     fun getListOfSortByTypes(): List<String> {
         setListOfSortByTypes(getWorkoutDayTypes())
         _listOfSortByTypes.value =
-            listOfSortByTypes.value.plus("Sort By Time Ascending").plus("Sort By Time Descending")
+            listOfSortByTypes.value.plus("Time Ascending").plus("Time Descending")
         return listOfSortByTypes.value
     }
 
     fun sortBy(option: String) {
-        when (val index = _listOfSortByTypes.value.indexOf(option)) {
-            listOfSortByTypes.value.size - 2 -> {
-                sortByTimeAscending()
-            }
-            listOfSortByTypes.value.size - 1 -> {
-                sortByTimeDescending()
-            }
-            else -> {
-                CoroutineScope(Dispatchers.Default).launch {
+        viewModelScope.launch {
+            when (val index = _listOfSortByTypes.value.indexOf(option)) {
+                listOfSortByTypes.value.size - 2 -> {
+                    sortByTimeAscending()
+                }
+                listOfSortByTypes.value.size - 1 -> {
+                    sortByTimeDescending()
+                }
+                else -> {
                     sortByDays(index)
                 }
             }

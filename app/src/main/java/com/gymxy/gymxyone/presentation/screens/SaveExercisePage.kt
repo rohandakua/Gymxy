@@ -18,8 +18,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.gymxy.gymxyone.R
+import com.gymxy.gymxyone.data.offline.GymExerciseCollection
 import com.gymxy.gymxyone.domain.helperFunctions.gradientBrush
 import com.gymxy.gymxyone.domain.models.Result
 import com.gymxy.gymxyone.presentation.composableFunctions.AddExerciseItem
@@ -54,6 +56,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SaveExercisePage(
     modifier: Modifier,
@@ -66,14 +69,17 @@ fun SaveExercisePage(
         LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
     val dayName = exercisePageViewModel.splitDayName.collectAsState()
     val exerciseDetails = exercisePageViewModel.exerciseDetails.collectAsState()
-    val timeElapsed = exercisePageViewModel.timeElapsed.collectAsState()
+
+
+    val timeElapsed = exercisePageViewModel.timeElapsed.collectAsState("00:00")
     var toShowRatingDialog = false
     val context = LocalContext.current
-    var addNewExerciseClicked = false
-    var listOfExercises: List<String>
+    var addNewExerciseClicked by remember { mutableStateOf(false) }
+     var listOfExercises = GymExerciseCollection.exerciseList.toList()
     var selectedExercise by remember { mutableStateOf<String?>(null) }
     var weightUnit = settingPageViewModel.weightUnit.collectAsState()
     var toShowAddNewRep = false
+
 
     Box(
         modifier = modifier
@@ -129,39 +135,7 @@ fun SaveExercisePage(
                 }
             )
         }
-        // To show list of the exercises
-        if (addNewExerciseClicked) {
-            listOfExercises = exercisePageViewModel.getExerciseNames()
-                .toList() // this is to always fetch the updated exercises
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 60.dp, end = 60.dp, top = 150.dp, bottom = 200.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                DropdownMenu(
-                    expanded = addNewExerciseClicked,
-                    onDismissRequest = { addNewExerciseClicked = false },
-                    shape = RoundedCornerShape(20.dp),
-                    containerColor = mainBackgroundColor
-                ) {
-                    listOfExercises.forEach { exerciseName ->
-                        DropdownMenuItem(
-                            text = { NormalText(text = exerciseName, textSize = 24) },
-                            onClick = {
-                                selectedExercise = exerciseName
-                                exercisePageViewModel.addNewExercise(selectedExercise!!)
-                                addNewExerciseClicked = false
-                            },
-                            modifier = Modifier.background(mainBackgroundColor)
 
-                        )
-                    }
-                }
-
-            }
-        }
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -249,40 +223,126 @@ fun SaveExercisePage(
                     }
                 }
 
+//                Column(
+//                    horizontalAlignment = Alignment.CenterHorizontally,
+//                    verticalArrangement = Arrangement.spacedBy(5.dp),
+//                    modifier = Modifier
+//                        .fillMaxHeight(if (orientation) .8f else .9f)
+//                ) {
+//
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.baseline_add_circle_24),
+//                        contentDescription = "add new workout", tint = Color.Black,
+//                        modifier = Modifier
+//                            .clickable {
+//                                // for adding new exercise
+//                                // opening a select box for choosing the exercise
+//                                addNewExerciseClicked = true
+//                            }
+//                            .drawBehind {
+//                                drawCircle(
+//                                    brush = gradientBrush,
+//                                    alpha = 1f
+//                                )
+//                            }
+//
+//                    )
+//
+//                    NormalText(text = "add new exercise", textSize = if (orientation) 15 else 15)
+//                }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                    modifier = Modifier
-                        .fillMaxHeight(if (orientation) .8f else .9f)
-                ) {
 
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_add_circle_24),
-                        contentDescription = "add new workout", tint = Color.Black,
-                        modifier = Modifier
-                            .clickable {
-                                // for adding new exercise
-                                // opening a select box for choosing the exercise
-                                addNewExerciseClicked = true
+                    /****/
+                    // To show list of the exercises
+//                if (addNewExerciseClicked) {
+//
+//                    DropdownMenu(
+//                        expanded = addNewExerciseClicked,
+//                        onDismissRequest = { addNewExerciseClicked = false },
+//                        shape = RoundedCornerShape(20.dp),
+//                        containerColor = mainBackgroundColor
+//                    ) {
+//
+//                    }
+//
+//                }
+                    //}
+
+                    /****/
+
+
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        ExposedDropdownMenuBox(
+                            expanded = addNewExerciseClicked,
+                            onExpandedChange = { addNewExerciseClicked = it },
+                            modifier = Modifier
+                                .background(Color.Transparent)
+                                .fillMaxWidth(),
+
+                            ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
+                                    .menuAnchor()
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_add_circle_24),
+                                        contentDescription = "add new workout", tint = Color.Black,
+                                        modifier = Modifier
+                                            .drawBehind {
+                                                drawCircle(
+                                                    brush = gradientBrush,
+                                                    alpha = 1f
+                                                )
+                                            }
+
+                                    )
+                                    NormalText(
+                                        text = "add new workout",
+                                        textSize = if (orientation) 10 else 15
+                                    )
+                                }
                             }
-                            .drawBehind {
-                                drawCircle(
-                                    brush = gradientBrush,
-                                    alpha = 1f
-                                )
+
+                            ExposedDropdownMenu(
+                                expanded = addNewExerciseClicked,
+                                onDismissRequest = { addNewExerciseClicked = false },
+                                modifier = Modifier.background(Color.Transparent),
+                                containerColor = mainBackgroundColor
+                            ) {
+                                listOfExercises!!.forEach { exerciseName ->
+                                    DropdownMenuItem(
+                                        text = { NormalText(text = exerciseName, textSize = 24) },
+                                        onClick = {
+                                            selectedExercise = exerciseName
+                                            exercisePageViewModel.addNewExercise(selectedExercise!!)
+                                            addNewExerciseClicked = false
+                                        },
+                                        modifier = Modifier.background(mainBackgroundColor)
+
+                                    )
+                                }
                             }
+                        }
+                    }
 
-                    )
-
-                    NormalText(text = "add new exercise", textSize = if (orientation) 15 else 15)
-                }
-
-
-            }
 
 
         }
 
+
     }
+
+}
 }

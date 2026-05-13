@@ -41,7 +41,7 @@ class SettingDataHandler @Inject constructor(
      */
     override suspend fun saveWeight(weight: Double): Result {
         val unit = getWeightUnit()
-        return if(unit == SharedPreferenceCollectionName.SHARED_PREFERENCE_KILOGRAM){
+        return if (unit == SharedPreferenceCollectionName.SHARED_PREFERENCE_KILOGRAM) {
             val result = saveWeight.execute(
                 weightDetails = Weight(
                     weight = kilogramToGram(weight),
@@ -50,7 +50,7 @@ class SettingDataHandler @Inject constructor(
             )
             setBMI()
             result
-        }else{
+        } else {
             val result = saveWeight.execute(
                 weightDetails = Weight(
                     weight = poundToGram(weight),
@@ -77,9 +77,9 @@ class SettingDataHandler @Inject constructor(
     /**
      * saveHeight also calculates the BMI and saves it in sharedPreference
      */
-    override suspend fun saveHeight(height: Double , feet : Double , inch : Double): Result {
+    override suspend fun saveHeight(height: Double, feet: Double, inch: Double): Result {
         val unit = getHeightUnit()
-        return if(unit == SharedPreferenceCollectionName.SHARED_PREFERENCE_CENTIMETER){
+        return if (unit == SharedPreferenceCollectionName.SHARED_PREFERENCE_CENTIMETER) {
             val result = saveHeight.execute(
                 Height(
                     height = height.toInt(),
@@ -88,10 +88,10 @@ class SettingDataHandler @Inject constructor(
             )
             setBMI()
             result
-        }else{
+        } else {
             val result = saveHeight.execute(
                 Height(
-                    height = feetInchesToCms(feet,inch),
+                    height = feetInchesToCms(feet, inch),
                     dateInEpoch = System.currentTimeMillis()
                 )
             )
@@ -127,20 +127,22 @@ class SettingDataHandler @Inject constructor(
         return sharedPreferenceDataHandler.getRatingOrNot()
     }
 
-    override suspend fun setBMI(){
+    override suspend fun setBMI() {
         val heightList = getHeightDetails.execute()
         val weightList = getWeightDetails.execute()
         val height = heightList?.first()?.height
         val weight = weightList?.first()?.weight
-        sharedPreferenceDataHandler.saveHeight(height!!)
-        sharedPreferenceDataHandler.saveWeight(weight!!)
-        val bmi = calculateBMI(weight,height)
-        sharedPreferenceDataHandler.saveBMI(bmi)
+        height?.let { sharedPreferenceDataHandler.saveHeight(height) }
+        weight?.let { sharedPreferenceDataHandler.saveWeight(weight) }
+        if (height != null && weight != null) {
+            val bmi = calculateBMI(weight, height)
+            sharedPreferenceDataHandler.saveBMI(bmi)
+        }
     }
 
     override suspend fun getBMI(): String {
         val bmi = sharedPreferenceDataHandler.getBMI().toString()
-        if(bmi == ""){
+        if (bmi == "") {
             setBMI()
         }
         return bmi
@@ -163,15 +165,19 @@ class SettingDataHandler @Inject constructor(
         return defaultSplits[splitId] ?: getSplitById.execute(splitId)
     }
 
-    override fun getHeight(): Int{
+    override fun getHeight(): Int {
         return sharedPreferenceDataHandler.getHeight()
     }
-    override fun getWeight(): Long{
+
+    override fun getWeight(): Long {
         return sharedPreferenceDataHandler.getWeight()
     }
 
     override fun getPhotoAndUrl(): Pair<String, String> {
-        return Pair(sharedPreferenceDataHandler.getName()!!, sharedPreferenceDataHandler.getPhoto()!!)
+        return Pair(
+            sharedPreferenceDataHandler.getName()!!,
+            sharedPreferenceDataHandler.getPhoto()!!
+        )
     }
 
 }

@@ -56,9 +56,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.gymxy.gymxyone.R
 import com.gymxy.gymxyone.data.offline.AddNewSplitItem
+import com.gymxy.gymxyone.data.offline.DefaultSplits
 import com.gymxy.gymxyone.data.offline.SharedPreferenceCollectionName
 import com.gymxy.gymxyone.domain.helperFunctions.gradientBrush
 import com.gymxy.gymxyone.domain.helperFunctions.provideMainTextStyle
@@ -94,15 +96,32 @@ fun SettingPage(
     authViewModel: AuthViewModel = hiltViewModel()
 
 ) {
+    // Reload settings when the screen becomes active
+    LaunchedEffect(Unit) {
+        settingPageViewModel.reloadAllSettings()
+    }
+
     var expanded by remember { mutableStateOf(false) }
+    var selectedSplit = settingPageViewModel.trainingSplitSelected.collectAsState()
+    LaunchedEffect(true) {
+        settingPageViewModel.getAllSplitInList()
+    }
     var splitList = settingPageViewModel.splitDetailsList.collectAsState()
     val options = splitList.value.toMutableList()
     /**
      * in @options we are adding a new SplitDetails item to make the user add new Split and then if
      * the user clicks it then he will be directed to the addNewSplit dialog box
      */
+    options.add(DefaultSplits.split1)
+    options.add(DefaultSplits.split2)
+    options.add(DefaultSplits.split3)
+    options.add(DefaultSplits.split4)
     options.add(AddNewSplitItem.split)
-    var selectedOption by remember { mutableStateOf(options[0]) }
+    var selectedOptionIndex = options.indexOfFirst{ it.splitId == selectedSplit.value }
+    if(selectedOptionIndex<0){
+        selectedOptionIndex=0
+    }
+    var selectedOption by remember { mutableStateOf(options.get(selectedOptionIndex)) }
 
     val orientation =
         LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
@@ -276,7 +295,7 @@ fun SettingPage(
                                         textSize = 15
                                     )
                                 }, onClick = {
-                                    selectedOption = option
+//                                    selectedOption = option
                                     settingPageViewModel.setTrainingSplitSelected(selectedOption.splitId)
                                     expanded = false
                                 })
@@ -375,7 +394,7 @@ fun SettingPage(
                                     )
                                 }, onClick = {
                                     settingPageViewModel.setWeightUnit(if (option == "kgs") SharedPreferenceCollectionName.SHARED_PREFERENCE_KILOGRAM else SharedPreferenceCollectionName.SHARED_PREFERENCE_POUND)
-                                    selectedOptionWeightUnit = option
+//                                    selectedOptionWeightUnit = option
                                     updateBmi()
                                     expandedWeightUnit = false
                                 })
@@ -493,7 +512,7 @@ fun SettingPage(
                                 }, onClick = {
                                     settingPageViewModel.setHeightUnit(if (option == "cms") SharedPreferenceCollectionName.SHARED_PREFERENCE_CENTIMETER else SharedPreferenceCollectionName.SHARED_PREFERENCE_FEET_AND_INCHES)
                                     updateBmi()
-                                    selectedOptionHeightUnit = option
+//                                    selectedOptionHeightUnit = option
                                     expandedHeightUnit = false
                                 })
                             }
@@ -1148,7 +1167,7 @@ fun SettingPage(
                                 TextField(
                                     value = weight.value,
                                     onValueChange = {
-                                        CoroutineScope(Dispatchers.IO).launch {
+                                        settingPageViewModel.viewModelScope.launch {
                                             settingPageViewModel.setWeight(it)
                                         }
                                         updateBmi()
@@ -1686,4 +1705,5 @@ fun SettingPage(
 
 
 }
+
 

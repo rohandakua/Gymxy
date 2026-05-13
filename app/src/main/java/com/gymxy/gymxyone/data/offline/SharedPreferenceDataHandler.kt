@@ -1,14 +1,16 @@
 package com.gymxy.gymxyone.data.offline
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import javax.inject.Inject
 
 class SharedPreferenceDataHandler @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) {
     fun saveUid(uid: String) {
-        sharedPreferences.edit()
-            .putString(SharedPreferenceCollectionName.SHARED_PREFERENCE_UID, uid).apply()
+        sharedPreferences.edit{
+            putString(SharedPreferenceCollectionName.SHARED_PREFERENCE_UID, uid)
+        }
     }
 
     fun getUid(): String? {
@@ -19,8 +21,9 @@ class SharedPreferenceDataHandler @Inject constructor(
     }
 
     fun saveName(name: String) {
-        sharedPreferences.edit()
-            .putString(SharedPreferenceCollectionName.SHARED_PREFERENCE_NAME, name).apply()
+        sharedPreferences.edit{
+            putString(SharedPreferenceCollectionName.SHARED_PREFERENCE_NAME, name)
+        }
     }
 
     fun getName(): String? {
@@ -31,8 +34,9 @@ class SharedPreferenceDataHandler @Inject constructor(
     }
 
     fun savePhoto(photo: String) {
-        sharedPreferences.edit()
-            .putString(SharedPreferenceCollectionName.SHARED_PREFERENCE_PHOTO_URL, photo).apply()
+        sharedPreferences.edit{
+            putString(SharedPreferenceCollectionName.SHARED_PREFERENCE_PHOTO_URL, photo)
+        }
     }
 
     fun getPhoto(): String? {

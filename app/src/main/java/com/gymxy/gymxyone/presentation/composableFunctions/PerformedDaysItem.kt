@@ -31,7 +31,7 @@ import com.gymxy.gymxyone.R
 import com.gymxy.gymxyone.data.offline.SharedPreferenceCollectionName
 import com.gymxy.gymxyone.domain.helperFunctions.gradientBrush
 import com.gymxy.gymxyone.domain.helperFunctions.millisToDate
-import com.gymxy.gymxyone.domain.helperFunctions.millisecondsToTime
+import com.gymxy.gymxyone.domain.helperFunctions.millisecondsToTimeAmPm
 import com.gymxy.gymxyone.domain.helperFunctions.unitConversionWeight
 import com.gymxy.gymxyone.domain.models.EachExercisePerformedDetails
 import com.gymxy.gymxyone.domain.models.EachExerciseReps
@@ -121,8 +121,8 @@ fun PerformedDaysItem(
                 fontSize = 20.sp
             )
             Text(
-                text = "${millisecondsToTime(performedDays.startTime)} - ${
-                    millisecondsToTime(
+                text = "${millisecondsToTimeAmPm(performedDays.startTime)} - ${
+                    millisecondsToTimeAmPm(
                         performedDays.endTime
                     )
                 }",

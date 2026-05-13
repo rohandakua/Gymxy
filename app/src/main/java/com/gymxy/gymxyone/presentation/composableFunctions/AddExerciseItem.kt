@@ -39,7 +39,7 @@ import com.gymxy.gymxyone.ui.theme.mainTextColor
 @Preview(showBackground = true, backgroundColor = 0L)
 fun AddExerciseItem(
     eachExercisePerformedDetails: EachExercisePerformedDetails = EachExercisePerformedDetails(  // TODO remove this dummy data
-        exerciseName = "Bench Press",
+        exerciseName = "Bench Press d asd sdfsd asdfsd fasd sd",
         details = listOf(
             EachExerciseReps(weight = 500000, reps = 10),
             EachExerciseReps(weight = 60000, reps = 8),
@@ -73,7 +73,10 @@ fun AddExerciseItem(
             Text(
                 text = eachExercisePerformedDetails.exerciseName, fontWeight = FontWeight.W900,
                 color = mainTextColor,
-                fontSize = 23.sp
+                fontSize = 23.sp,
+                modifier = Modifier.fillMaxWidth(.7f)
+                
+
             )
             Column (horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement =  Arrangement.spacedBy(5.dp)){

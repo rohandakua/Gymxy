@@ -1,6 +1,8 @@
 package com.gymxy.gymxyone.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gymxy.gymxyone.data.offline.GymExerciseCollection
 import com.gymxy.gymxyone.domain.helperFunctions.kilogramToGram
 import com.gymxy.gymxyone.domain.helperFunctions.poundToGram
@@ -14,8 +16,6 @@ import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.GetFormattedTime
 import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.ResetStopwatch
 import com.gymxy.gymxyone.domain.useCases.stopwatchUsecases.StartStopwatch
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,14 +29,16 @@ class ExercisePageViewModel @Inject constructor(
     private val startStopwatch: StartStopwatch,
     private val savePerformedDay: SavePerformedDay,
 ) : ViewModel() {
+    val TAG = "ExercisePageViewModel"
     //State
     private var stopwatchRunning = false
     fun startTimer() {
         stopwatchRunning = true
+        resetStopwatch.execute()
         setStartTime(System.currentTimeMillis())
         startStopwatch.execute()
-        CoroutineScope(Dispatchers.IO).launch {
-            while (!stopwatchRunning) {
+        viewModelScope.launch {
+            while (stopwatchRunning) {
                 delay(10000)
                 setTimeElapsed(getFormattedTime.execute())
             }
@@ -44,14 +46,16 @@ class ExercisePageViewModel @Inject constructor(
     }
 
     fun endTimer() {
+        Log.d(TAG,"endTimer clicked")
         stopwatchRunning = false
         resetStopwatch.execute()
     }
 
-    private val _timeElapsed = MutableStateFlow<String>("00:00")
+    private val _timeElapsed = MutableStateFlow<String>("nil")
     val timeElapsed: StateFlow<String> get() = _timeElapsed
     fun setTimeElapsed(time: String) {
         _timeElapsed.value = time
+        Log.d(TAG, "from VM setTimeElapsed: ${_timeElapsed.value}")
     }
 
     /*
@@ -201,8 +205,11 @@ class ExercisePageViewModel @Inject constructor(
     }
 
     fun addNewWorkout(indexOfSplit: Int, splitDetails: SplitDetails) {
+        Log.d(TAG, "addNewWorkout clicked")
         startTimer()
+        Log.d(TAG, "startTimer clicked")
         setSplitDayName(splitDetails.details[indexOfSplit]!!)
+        Log.d(TAG, " split day name set")
         setSplitId(splitDetails.splitId)
         setToShowThisInFeed(true)
         setRating(0.0)

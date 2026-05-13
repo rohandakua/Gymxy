@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -40,6 +38,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.gymxy.gymxyone.R
 import com.gymxy.gymxyone.domain.helperFunctions.gradientBrush
@@ -93,42 +92,43 @@ fun HomeScreen(
 
     //for all the content
     Box(modifier = Modifier.safeDrawingPadding()) {
-        if(expandedForDays){
-            LaunchedEffect (Unit){                          // To update the selected split details
-                withContext(Dispatchers.IO){
-                    homePageViewModel.getTrainingSplit()
-                }
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 60.dp, end = 60.dp, top = 150.dp, bottom = 200.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                DropdownMenu(
-                    expanded = expandedForDays,
-                    onDismissRequest = { expandedForDays = false },
-                    shape = RoundedCornerShape(20.dp),
-                    containerColor = mainBackgroundColor
-                ) {
-                    listOfDays.forEach { day ->
-                        DropdownMenuItem(
-                            text = { NormalText(text = day , textSize = 24) },
-                            onClick = {
-                                selectedDay = day
-                                expandedForDays = false
-                                exercisePageViewModel.addNewWorkout(listOfDays.indexOf(day),homePageViewModel.selectedSplitDetails.value)
-                                navController.navigate("saveExercise")
-                            },
-                            modifier = Modifier.background(mainBackgroundColor)
+//        if(expandedForDays){
+//            LaunchedEffect (Unit){                          // To update the selected split details
+//                withContext(Dispatchers.IO){
+//                    homePageViewModel.getTrainingSplit()
+//                }
+//            }
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(start = 60.dp, end = 60.dp, top = 150.dp, bottom = 200.dp),
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                verticalArrangement = Arrangement.Center
+//            ) {
+//                DropdownMenu(
+//                    expanded = expandedForDays,
+//                    onDismissRequest = { expandedForDays = false },
+//                    shape = RoundedCornerShape(20.dp),
+//                    containerColor = mainBackgroundColor
+//                ) {
+//                    listOfDays.forEach { day ->
+//                        DropdownMenuItem(
+//                            text = { NormalText(text = day , textSize = 24) },
+//                            onClick = {
+//                                selectedDay = day
+//                                expandedForDays = false
+//                                exercisePageViewModel.addNewWorkout(listOfDays.indexOf(day),homePageViewModel.selectedSplitDetails.value)
+//                                navController.navigate("saveExercise")
+//                            },
+//                            modifier = Modifier.background(mainBackgroundColor)
+//
+//                        )
+//                    }
+//                }
+//
+//            }
+//        }
 
-                        )
-                    }
-                }
-
-            }
-        }
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -154,7 +154,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .size(38.dp)
                         .clickable {
-                            navController.navigate("settings")
+                            navController.navigate("setting")
                         }
                         .drawWithContent {
                             drawContent()
@@ -202,7 +202,7 @@ fun HomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 1.dp, bottom = 2.dp),
+                    .padding(  top = 1.dp, bottom = 2.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -268,30 +268,80 @@ fun HomeScreen(
                     }
                 }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
+                ///////////////////
 
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_add_circle_24),
-                        contentDescription = "add new workout", tint = Color.Black,
-                        modifier = Modifier
-                            .clickable {
-                                expandedForDays = true
-                            }
-                            .drawBehind {
-                                drawCircle(
-                                    brush = gradientBrush,
-                                    alpha = 1f
-                                )
-                            }
-
-                    )
-
-
-                    NormalText(text = "add new workout", textSize = if (orientation) 10 else 15)
+                LaunchedEffect (Unit){                          // To update the selected split details
+                    withContext(Dispatchers.IO){
+                        homePageViewModel.getTrainingSplit()
+                    }
                 }
+
+                ExposedDropdownMenuBox(
+                    expanded = expandedForDays,
+                    onExpandedChange = { expandedForDays = it },
+                    modifier = Modifier
+                        .background(Color.Transparent)
+                        .fillMaxWidth(),
+
+                    ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .menuAnchor()
+                    ) {
+                        Column (
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ){
+
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_add_circle_24),
+                                contentDescription = "add new workout", tint = Color.Black,
+                                modifier = Modifier
+                                    .drawBehind {
+                                        drawCircle(
+                                            brush = gradientBrush,
+                                            alpha = 1f
+                                        )
+                                    }
+
+                            )
+                            NormalText(text = "add new workout", textSize = if (orientation) 10 else 15)
+                        }
+                    }
+
+                    ExposedDropdownMenu(
+                        expanded = expandedForDays,
+                        onDismissRequest = { expandedForDays = false },
+                        modifier = Modifier.background(Color.Transparent),
+                        containerColor = mainBackgroundColor
+                    ) {
+                        listOfDays.forEach { day ->
+                            DropdownMenuItem(
+                                text = { NormalText(text = day, textSize = 24) },
+                                onClick = {
+                                    selectedDay = day
+                                    expandedForDays = false
+                                    exercisePageViewModel.viewModelScope.launch {
+                                        exercisePageViewModel.addNewWorkout(
+                                            listOfDays.indexOf(
+                                                day
+                                            ), homePageViewModel.selectedSplitDetails.value
+                                        )
+                                    }
+                                    navController.navigate("saveExercise")
+                                },
+                                modifier = Modifier.background(mainBackgroundColor)
+
+                            )
+                        }
+                    }
+                }
+
+
+
 
 
             }

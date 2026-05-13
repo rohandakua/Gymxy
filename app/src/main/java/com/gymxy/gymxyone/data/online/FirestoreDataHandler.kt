@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
+import com.gymxy.gymxyone.data.offline.DefaultSplits
 import com.gymxy.gymxyone.data.offline.SharedPreferenceDataHandler
 import com.gymxy.gymxyone.domain.models.EachExercisePerformedDetails
 import com.gymxy.gymxyone.domain.models.Height
@@ -290,14 +291,14 @@ class FirestoreDataHandler @Inject constructor(
                 for(document in documents){
                     list.add(document.toObject<SplitDetails>())
                 }
+
                 list.toList()
             }catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, e.message.toString())
-                throw e
+                null
             }
-            null
         }
     }
 

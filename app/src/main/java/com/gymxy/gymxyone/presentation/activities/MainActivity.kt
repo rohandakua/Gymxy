@@ -43,10 +43,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CustomTheme {
-               // SplashScreen(modifier = Modifier,navController = rememberNavController() )
-                //GoogleSignInScreen(modifier = Modifier, navController = rememberNavController() , activityContext = this, activity = this@MainActivity)
-               // HomeScreen()
-//                SettingPage()
                 val navController = rememberNavController()
                 NavControllerClass(
                     navController = navController,
@@ -54,8 +50,7 @@ class MainActivity : ComponentActivity() {
                     activity = this@MainActivity,
                     modifier = Modifier
                 )
-
-           }
+            }
         }
     }
 }

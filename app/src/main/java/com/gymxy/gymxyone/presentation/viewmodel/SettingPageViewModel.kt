@@ -66,16 +66,17 @@ class SettingPageViewModel @Inject constructor(
     // States
     private val _name = MutableStateFlow<String>("")
     val name: StateFlow<String> get() = _name
-    fun setName(name: String ){
+    fun setName(name: String) {
         _name.value = name
     }
 
     private val _url = MutableStateFlow<String>("")
     val url: StateFlow<String> get() = _url
-    fun setUrl(url: String ){
+    fun setUrl(url: String) {
         _url.value = url
     }
-    fun setNameUrl(){
+
+    fun setNameUrl() {
         val nameAndUrl = getNameAndUrlFromSP.execute()
         setUrl(nameAndUrl.second)
         setName(nameAndUrl.first)
@@ -117,6 +118,7 @@ class SettingPageViewModel @Inject constructor(
     val weightUnit: StateFlow<String> get() = _weightUnit
     fun setWeightUnit(unit: String): Result {
         _weightUnit.value = unit
+        reloadAllSettings()
         return saveWeightUnit.execute(unit)
     }
 
@@ -168,19 +170,19 @@ class SettingPageViewModel @Inject constructor(
     private val _bmi = MutableStateFlow<Double>(0.0)
     val bmi: StateFlow<Double> get() = _bmi
     suspend fun setBMI() {
-        _bmi.value = getBMI.execute().toDouble()
+        val bmi = getBMI.execute()
+        _bmi.value = bmi.toDoubleOrNull() ?: 0.0
     }
 
     private val _bmiCategory = MutableStateFlow<String>("")
     val bmiCategory: StateFlow<String> get() = _bmiCategory
     fun setBMICategory() {
-        when(_bmi.value){
+        when (_bmi.value) {
             in 0.0..18.4 -> _bmiCategory.value = "Underweight"
             in 18.5..24.9 -> _bmiCategory.value = "Healthy weight"
             in 25.0..29.9 -> _bmiCategory.value = "Overweight"
             in 30.0..100.0 -> _bmiCategory.value = "Obesity"
         }
-
     }
 
     private val _newSplit = MutableStateFlow<SplitDetails>(SplitDetails())
@@ -188,64 +190,77 @@ class SettingPageViewModel @Inject constructor(
     fun setNewSplit(splitDetails: SplitDetails) {
         _newSplit.value = splitDetails
     }
-    suspend fun saveNewSplit (): Result {
+
+    suspend fun saveNewSplit(): Result {
         return saveSplit.execute(_newSplit.value)
     }
 
-
-    init {
-        viewModelScope.launch {
-            getTrainingSplit.execute()?.let { setTrainingSplitSelected(splitId = it.splitId) }
-            setNotificationPermission(permission = getNotificationPermission.execute())
-            setRatingPermission(permission = getRaingPermission.execute())
-            setNotificationTime(time = getNotificationTime.execute())
-            /**
-             *   const val SHARED_PREFERENCE_KILOGRAM = "kilogram"
-             *   const val SHARED_PREFERENCE_POUND = "pound"
-             */
-            setWeightUnit(unit = getWeightUnit.execute())
-
-            /**
-             *
-             *     const val SHARED_PREFERENCE_CENTIMETER = "centimeter"
-             *     const val SHARED_PREFERENCE_FEET_AND_INCHES = "feet"
-             */
-            setHeightUnit(unit = getHeightUnit.execute())
-            setWeight(getWeight.execute().toString())
-            val ht = getHeight.execute()
-            setHeightCms(height = ht.toString())
-            val ftIn = cmsToFeetInches(ht)
-            setHeight(feet = ftIn.first.toString(), inch = ftIn.second.toString())
-            setBMI()
-        }
-    }
     private var splitDetailsList_ = MutableStateFlow<List<SplitDetails>>(listOf())
     val splitDetailsList: StateFlow<List<SplitDetails>> get() = splitDetailsList_
-    fun setSplitDetailsList (a:List<SplitDetails>){
-        splitDetailsList_.value= a
-    }
 
+    fun setSplitDetailsList(a: List<SplitDetails>) {
+        splitDetailsList_.value = a
+    }
 
     suspend fun getAllSplitInList(): List<SplitDetails>? {
         getSplitDetails.execute()?.let { setSplitDetailsList(it) }
         return splitDetailsList_.value
     }
 
-
-
     private val _exerciseList = MutableStateFlow<List<String>>(GymExerciseCollection.exerciseList)
-    val exerciseList : StateFlow<List<String>> get() = _exerciseList
+    val exerciseList: StateFlow<List<String>> get() = _exerciseList
 
-
-    fun addNewExercise(exercise:String, category: String){  // FROM ExerciseCategory
+    fun addNewExercise(exercise: String, category: String) {
         GymExerciseCollection.addExercise(category = category.uppercase(), exerciseName = exercise.uppercase())
         _exerciseList.value = GymExerciseCollection.exerciseList
     }
 
-    fun deleteExercise(exercise:String){
+    fun deleteExercise(exercise: String) {
         GymExerciseCollection.deleteExercise(exerciseName = exercise.uppercase())
         _exerciseList.value = GymExerciseCollection.exerciseList
     }
 
+    // Function to reload all settings
+    fun reloadAllSettings() {
+        viewModelScope.launch {
+            try {
+                // Load training split
+                getTrainingSplit.execute()?.let { setTrainingSplitSelected(splitId = it.splitId) }
+                
+                // Load permissions
+                setNotificationPermission(permission = getNotificationPermission.execute())
+                setRatingPermission(permission = getRaingPermission.execute())
+                setNotificationTime(time = getNotificationTime.execute())
+                
+                // Load units
+                setWeightUnit(unit = getWeightUnit.execute())
+                setHeightUnit(unit = getHeightUnit.execute())
+                
+                // Load measurements
+                setWeight(getWeight.execute().toString())
+                val ht = getHeight.execute()
+                setHeightCms(height = ht.toString())
+                val ftIn = cmsToFeetInches(ht)
+                setHeight(feet = ftIn.first.toString(), inch = ftIn.second.toString())
+                
+                // Load BMI
+                setBMI()
+                setBMICategory()
+                
+                // Load name and URL
+                setNameUrl()
+                
+                // Load split details
+                getAllSplitInList()
+            } catch (e: Exception) {
+                // Handle any errors during reload
+            }
+        }
+    }
 
+    init {
+        viewModelScope.launch {
+            reloadAllSettings()
+        }
+    }
 }
